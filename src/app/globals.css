@@ -39,6 +39,11 @@ html.dark body {
   background-color: rgb(3, 7, 18);
 }
 
+::selection {
+  background-color: #3F35FF;
+  color: white;          
+}
+
 /* Smooth transitions */
 @media (prefers-reduced-motion: no-preference) {
   html {

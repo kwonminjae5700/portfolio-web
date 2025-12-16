@@ -17,10 +17,9 @@ const Post = () => {
             CHALLENGE 인턴십 모집을 시작했습니다. 실무에서 다루는 AI 문제를
             네이버의 현업 엔지니어와 함께 아이디어 설계 단계부터 기
           </p>
-          <div className="space-x-2">
-            <span># AI</span>
-            <span># AI</span>
-            <span># AI</span>
+          <div className="space-x-2 text-[#3F35FF]">
+            <span># Tensorflow</span>
+            <span># Kubeflow</span>
           </div>
         </div>
         <Image src="/ex.png" alt="Example Image" width={180} height={110} />
