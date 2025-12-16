@@ -3,6 +3,8 @@
 
 @theme {
   --font-sans: var(--font-avenir), system-ui, -apple-system, sans-serif;
+  --color-title: #434a53;
+  --color-content: #666666;
   --color-d2-orange: #D74800;
   --color-d2-orange-hover: #B03A00;
   --color-naver-green: #03C75A;
