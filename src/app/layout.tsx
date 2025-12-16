@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import Header from "@/shared/Header";
-import Footer from "@/shared/Footer";
+import { Providers } from "./providers";
 
 const avenir = localFont({
   src: [
@@ -32,17 +31,78 @@ const avenir = localFont({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "Kwon5700's Blog",
-  description: "권민재의 블로그입니다.",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Kwon5700's Blog",
+    template: "%s | Kwon5700's Blog",
   },
+  description:
+    "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
+  keywords: [
+    "블로그",
+    "개발",
+    "프로그래밍",
+    "웹 개발",
+    "Next.js",
+    "React",
+    "권민재",
+    "Kwon5700",
+  ],
+  authors: [{ name: "권민재", url: siteUrl }],
+  creator: "권민재",
+  publisher: "권민재",
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: siteUrl,
+    siteName: "Kwon5700's Blog",
+    title: "Kwon5700's Blog",
+    description:
+      "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
+    images: [
+      {
+        url: "/bridge.png",
+        width: 1200,
+        height: 630,
+        alt: "Kwon5700's Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kwon5700's Blog",
+    description:
+      "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
+    images: ["/bridge.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+  verification: {
+    // Google Search Console 인증 시 추가
+    // google: "your-google-verification-code",
+    // Naver Search Advisor 인증 시 추가
+    // other: { "naver-site-verification": "your-naver-verification-code" },
   },
 };
 
@@ -54,9 +114,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${avenir.variable} antialiased bg-white text-gray-900`}>
-        <Header />
-        {children}
-        <Footer />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

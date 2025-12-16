@@ -1,6 +1,6 @@
-import Post from "@/components/Post";
-import TopContent from "@/components/TopContent";
 import Image from "next/image";
+import ArticleList from "@/components/ArticleList";
+import TopContentApi from "@/components/TopContentApi";
 
 export default function HomePage() {
   return (
@@ -14,11 +14,11 @@ export default function HomePage() {
       />
       <section className="px-78 py-14 flex justify-between gap-16">
         <article className="w-7xl flex-col gap-14">
-          <Post />
+          <ArticleList />
         </article>
         <aside className="flex-col gap-8 sticky top-24 self-start">
-          <TopContent mode="posts" />
-          <TopContent mode="categories" />
+          <TopContentApi mode="posts" />
+          <TopContentApi mode="categories" />
         </aside>
       </section>
     </main>
