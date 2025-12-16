@@ -1,0 +1,187 @@
+import { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { API_BASE_URL, ROUTES } from "@/lib/constants";
+import { formatDate } from "@/lib/utils";
+import PostContent from "@/components/post/PostContent";
+import PostActions from "@/components/post/PostActions";
+import type { Article } from "@/types/api";
+
+interface PostDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+// 서버에서 게시글 데이터 가져오기
+async function getArticle(id: string): Promise<Article | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/articles/${id}`, {
+      next: { revalidate: 60 }, // 60초마다 재검증
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+// SEO를 위한 동적 메타데이터 생성
+export async function generateMetadata({
+  params,
+}: PostDetailPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const article = await getArticle(id);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+
+  if (!article) {
+    return {
+      title: "글을 찾을 수 없습니다",
+      description: "요청하신 글을 찾을 수 없습니다.",
+    };
+  }
+
+  // 본문에서 description 추출 (마크다운 제거, 160자 제한)
+  const description = article.content
+    .replace(/[#*`\[\]()>\-_~!]/g, "")
+    .replace(/\n+/g, " ")
+    .trim()
+    .slice(0, 160);
+
+  const categories = article.categories?.map((c) => c.name) || [];
+
+  return {
+    title: article.title,
+    description,
+    keywords: [...categories, "블로그", "개발"],
+    authors: [{ name: article.author_name }],
+    openGraph: {
+      title: article.title,
+      description,
+      type: "article",
+      url: `${siteUrl}/post/${article.id}`,
+      publishedTime: article.created_at,
+      modifiedTime: article.updated_at || article.created_at,
+      authors: [article.author_name],
+      tags: categories,
+      siteName: "Kwon5700's Blog",
+      images: [
+        {
+          url: "/bridge.png",
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description,
+      images: ["/bridge.png"],
+    },
+    alternates: {
+      canonical: `${siteUrl}/post/${article.id}`,
+    },
+  };
+}
+
+export default async function PostDetailPage({ params }: PostDetailPageProps) {
+  const { id } = await params;
+  const article = await getArticle(id);
+
+  if (!article) {
+    notFound();
+  }
+
+  // JSON-LD 구조화 데이터
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: article.title,
+    datePublished: article.created_at,
+    dateModified: article.updated_at || article.created_at,
+    author: {
+      "@type": "Person",
+      name: article.author_name,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Kwon5700's Blog",
+      logo: {
+        "@type": "ImageObject",
+        url: `${
+          process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr"
+        }/bridge.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${
+        process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr"
+      }/post/${article.id}`,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="min-h-screen px-4 py-12 bg-gray-50 pt-30">
+        <article className="max-w-4xl mx-auto">
+          <header className="bg-white rounded-xl shadow-sm p-8 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              {article.categories && article.categories.length > 0 && (
+                <div className="flex gap-2">
+                  {article.categories.map((category) => (
+                    <span
+                      key={category.id}
+                      className="px-3 py-1 bg-mainBlue/10 text-mainBlue text-sm rounded-full"
+                    >
+                      {category.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <PostActions
+                articleId={article.id}
+                authorId={article.author_id}
+              />
+            </div>
+
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              {article.title}
+            </h1>
+
+            <div className="flex items-center gap-4 text-gray-500 text-sm">
+              <span>{article.author_name}</span>
+              <span>•</span>
+              <time dateTime={article.created_at}>
+                {formatDate(article.created_at)}
+              </time>
+              <span>•</span>
+              <span>조회수 {article.view_count}</span>
+            </div>
+          </header>
+
+          <PostContent content={article.content} />
+
+          <footer className="mt-8 pt-8 border-t border-gray-200">
+            <div className="flex justify-between items-center">
+              <Link
+                href={ROUTES.HOME}
+                className="text-mainBlue hover:underline font-medium"
+              >
+                ← 목록으로 돌아가기
+              </Link>
+              <PostActions
+                articleId={article.id}
+                authorId={article.author_id}
+              />
+            </div>
+          </footer>
+        </article>
+      </main>
+    </>
+  );
+}
