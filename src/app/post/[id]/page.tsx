@@ -39,12 +39,11 @@ export async function generateMetadata({
     };
   }
 
-  // 본문에서 description 추출 (마크다운 제거, 160자 제한)
+  // 본문에서 description 추출
   const description = article.content
     .replace(/[#*`\[\]()>\-_~!]/g, "")
     .replace(/\n+/g, " ")
-    .trim()
-    .slice(0, 160);
+    .trim();
 
   const categories = article.categories?.map((c) => c.name) || [];
 
@@ -129,41 +128,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       />
       <main className="min-h-screen px-4 py-12 bg-gray-50 pt-30">
         <article className="max-w-4xl mx-auto">
-          <header className="bg-white rounded-xl shadow-sm p-8 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              {article.categories && article.categories.length > 0 && (
-                <div className="flex gap-2">
-                  {article.categories.map((category) => (
-                    <span
-                      key={category.id}
-                      className="px-3 py-1 bg-mainBlue/10 text-mainBlue text-sm rounded-full"
-                    >
-                      {category.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <PostActions
-                articleId={article.id}
-                authorId={article.author_id}
-              />
-            </div>
-
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              {article.title}
-            </h1>
-
-            <div className="flex items-center gap-4 text-gray-500 text-sm">
-              <span>{article.author_name}</span>
-              <span>•</span>
-              <time dateTime={article.created_at}>
-                {formatDate(article.created_at)}
-              </time>
-              <span>•</span>
-              <span>조회수 {article.view_count}</span>
-            </div>
-          </header>
-
           <PostContent content={article.content} />
 
           <footer className="mt-8 pt-8 border-t border-gray-200">

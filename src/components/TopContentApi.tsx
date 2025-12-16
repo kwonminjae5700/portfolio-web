@@ -23,7 +23,7 @@ interface CategoryItemProps {
 
 const TopPostItem = ({ article, index }: TopPostItemProps) => (
   <Link href={ROUTES.POST(article.id)}>
-    <div className="flex gap-3 items-start py-2 hover:bg-gray-50 transition rounded">
+    <div className="flex gap-3 items-start py-2">
       <span className="text-mainBlue font-bold">{index + 1}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-700 truncate hover:text-black">

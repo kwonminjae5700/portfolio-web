@@ -66,8 +66,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-78">
+      <div className="max-w-full mx-auto">
         {/* 프로필 정보 */}
         <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -96,24 +96,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* 관리 메뉴 */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex gap-4">
-              <Link
-                href="/write"
-                className="px-4 py-2 bg-mainBlue text-white rounded-lg text-sm hover:bg-blue-600 transition"
-              >
-                새 글 작성
-              </Link>
-              <Link
-                href="/categories"
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition"
-              >
-                카테고리 관리
-              </Link>
-            </div>
-          </div>
         </div>
 
         {/* 내가 작성한 글 */}
@@ -122,12 +104,20 @@ export default function ProfilePage() {
             <h2 className="text-xl font-bold text-gray-900">
               내가 작성한 글 ({myArticles.length})
             </h2>
-            <Link
-              href="/write"
-              className="px-4 py-2 bg-mainBlue text-white rounded-lg text-sm hover:bg-blue-600 transition"
-            >
-              새 글 작성
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/categories"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition"
+              >
+                카테고리 관리
+              </Link>
+              <Link
+                href="/write"
+                className="px-4 py-2 bg-mainBlue text-white rounded-lg text-sm hover:bg-blue-600 transition"
+              >
+                새 글 작성
+              </Link>
+            </div>
           </div>
 
           {isLoadingArticles ? (
@@ -144,41 +134,41 @@ export default function ProfilePage() {
               {myArticles.map((article) => (
                 <div
                   key={article.id}
-                  className="border-b border-gray-200 pb-4 last:border-0 last:pb-0"
+                  className="border-b border-gray-200 pb-4 last:border-0 last:pb-0 flex justify-between items-center"
                 >
-                  <Link href={`/post/${article.id}`}>
-                    <h3 className="text-lg font-medium text-gray-900 hover:text-mainBlue transition">
-                      {article.title}
-                    </h3>
-                  </Link>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                    <span>{formatDate(article.created_at)}</span>
-                    <span>조회수 {article.view_count}</span>
-                    {article.categories && article.categories.length > 0 && (
-                      <div className="flex gap-1">
-                        {article.categories.map((cat) => (
-                          <span key={cat.id} className="text-mainBlue">
-                            #{cat.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <Link
-                      href={`/edit/${article.id}`}
-                      className="text-sm text-gray-400 hover:text-gray-600 transition"
-                    >
-                      수정
+                  <div>
+                    <Link href={`/post/${article.id}`}>
+                      <h3 className="text-lg font-medium text-gray-900 hover:text-mainBlue transition">
+                        {article.title}
+                      </h3>
                     </Link>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span>{formatDate(article.created_at)}</span>
+                      <span>조회수 {article.view_count}</span>
+                      {article.categories && article.categories.length > 0 && (
+                        <div className="flex gap-1">
+                          {article.categories.map((cat) => (
+                            <span key={cat.id} className="text-mainBlue">
+                              #{cat.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <Link
+                    href={`/edit/${article.id}`}
+                    className="text-sm text-gray-400 hover:text-gray-600 transition"
+                  >
+                    수정
+                  </Link>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="text-center mt-8">
+        <div className="text-center mt-8 flex justify-end">
           <Link
             href="/"
             className="text-gray-500 hover:text-gray-700 transition"
