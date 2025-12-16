@@ -12,38 +12,44 @@ interface ArticleCardProps {
 }
 
 // 서버 컴포넌트 - SEO를 위해 서버에서 렌더링
-export const ArticleCard = ({ article }: ArticleCardProps) => (
-  <Link href={ROUTES.POST(article.id)}>
-    <div className="w-full flex gap-4 pb-8 border-b border-gray-300 -m-2">
-      <div className="flex-col gap-1 h-fit flex-1">
-        <h2 className="text-2xl font-normal mb-2 text-title hover:text-black">
-          {article.title}
-        </h2>
-        <p className="line-clamp-2 text-content hover:text-black">
-          {truncateText(article.content, CONTENT_PREVIEW_LENGTH)}
-        </p>
-        <div className="flex items-center gap-4 mt-3">
-          {article.categories && article.categories.length > 0 && (
-            <div className="space-x-2 text-mainBlue">
-              {article.categories.map((cat) => (
-                <span key={cat.id}># {cat.name}</span>
-              ))}
-            </div>
-          )}
+export const ArticleCard = ({ article }: ArticleCardProps) => {
+  // 서버에서 무작위 이미지 선택 (1~16)
+  const randomImageNumber = Math.floor(Math.random() * 16) + 1;
+  const imageSrc = `/img/${randomImageNumber}.png`;
+
+  return (
+    <Link href={ROUTES.POST(article.id)}>
+      <div className="w-full flex gap-4 pb-8 border-b border-gray-300 -m-2">
+        <div className="flex-col gap-1 h-fit flex-1">
+          <h2 className="text-2xl font-normal mb-2 text-title hover:text-black">
+            {article.title}
+          </h2>
+          <p className="line-clamp-2 text-content hover:text-black">
+            {truncateText(article.content, CONTENT_PREVIEW_LENGTH)}
+          </p>
+          <div className="flex items-center gap-4 mt-3">
+            {article.categories && article.categories.length > 0 && (
+              <div className="space-x-2 text-mainBlue">
+                {article.categories.map((cat) => (
+                  <span key={cat.id}># {cat.name}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="w-[180px] h-auto bg-gray-200 shrink-0">
+          <Image
+            src={imageSrc}
+            alt={article.title}
+            width={180}
+            height={120}
+            className="object-cover w-[180px] h-[120px]"
+          />
         </div>
       </div>
-      <div className="w-[180px] h-auto bg-gray-200 shrink-0">
-        <Image
-          src="/ex.png"
-          alt={article.title}
-          width={180}
-          height={130}
-          className="object-cover w-full h-full"
-        />
-      </div>
-    </div>
-  </Link>
-);
+    </Link>
+  );
+};
 
 interface ArticleListProps {
   initialData: ArticleListResponse;
@@ -75,7 +81,11 @@ const ArticleList = ({ initialData }: ArticleListProps) => {
       ))}
 
       {/* 무한 스크롤은 클라이언트에서 처리 */}
-      <ArticleListClient initialLastId={last_id} initialHasMore={has_more} />
+      <ArticleListClient
+        initialLastId={last_id}
+        initialHasMore={has_more}
+        initialArticleIds={articles.map((a) => a.id)}
+      />
     </div>
   );
 };

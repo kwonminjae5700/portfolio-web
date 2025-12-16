@@ -87,8 +87,18 @@ class ApiClient {
     return this.request<ArticleListResponse>(`/articles?${params.toString()}`);
   }
 
+  async getTopArticles(): Promise<Article[]> {
+    return this.request<Article[]>("/articles/top/views");
+  }
+
   async getArticle(id: number): Promise<Article> {
     return this.request<Article>(`/articles/${id}`);
+  }
+
+  async incrementViewCount(id: number): Promise<void> {
+    return this.request<void>(`/articles/${id}/views`, {
+      method: "POST",
+    });
   }
 
   async createArticle(data: CreateArticleRequest): Promise<Article> {

@@ -104,7 +104,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center">
+        <div className="text-center flex justify-end">
           <Link
             href={ROUTES.HOME}
             className="text-sm text-gray-500 hover:text-gray-700 transition"

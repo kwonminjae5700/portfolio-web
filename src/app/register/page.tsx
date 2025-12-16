@@ -156,7 +156,7 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className="text-center">
+        <div className="text-center flex justify-end">
           <Link
             href="/"
             className="text-sm text-gray-500 hover:text-gray-700 transition"

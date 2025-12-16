@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES, EXTERNAL_LINKS } from "@/lib/constants";
 
 const Header = () => {
-  const { user, isLoggedIn, isLoading } = useAuth();
+  const { user, isLoggedIn, isLoading, canWrite } = useAuth();
 
   return (
     <header className="w-full h-18 px-78 flex justify-between items-center fixed top-0 bg-white z-50 border-b border-gray-300">
@@ -45,13 +45,15 @@ const Header = () => {
           <>
             {isLoggedIn ? (
               <div className="flex items-center gap-3 ml-4">
-                <Link
-                  href={ROUTES.WRITE}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-mainBlue hover:bg-gray-100 rounded-lg transition"
-                >
-                  <IconPencil size={18} />
-                  글쓰기
-                </Link>
+                {canWrite && (
+                  <Link
+                    href={ROUTES.WRITE}
+                    className="flex items-center gap-1 px-3 py-2 text-sm text-mainBlue hover:bg-gray-100 rounded-lg transition"
+                  >
+                    <IconPencil size={18} />
+                    글쓰기
+                  </Link>
+                )}
                 <Link
                   href={ROUTES.PROFILE}
                   className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition"

@@ -1,8 +1,35 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import ArticleList from "@/components/ArticleList";
-import TopContentApi from "@/components/TopContentApi";
+import TopContent from "@/components/TopContent";
 import { API_BASE_URL, PAGINATION } from "@/lib/constants";
 import type { ArticleListResponse } from "@/types/api";
+
+// 로딩 스켈레톤 컴포넌트
+const TopContentSkeleton = ({ mode }: { mode: "posts" | "categories" }) => (
+  <div className="w-64 pb-10 border-b border-gray-300 animate-pulse">
+    <div className="h-7 bg-gray-200 rounded w-32 mb-4"></div>
+    {mode === "posts" ? (
+      <div className="flex flex-col gap-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex gap-3 items-start py-2">
+            <div className="w-4 h-4 bg-gray-200 rounded"></div>
+            <div className="flex-1">
+              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+              <div className="h-3 bg-gray-100 rounded w-16"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="flex gap-3 flex-wrap">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-8 bg-gray-200 rounded-3xl w-20"></div>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
 // 서버에서 초기 게시글 데이터 가져오기
 async function getInitialArticles(): Promise<ArticleListResponse> {
@@ -38,8 +65,12 @@ export default async function HomePage() {
           <ArticleList initialData={initialData} />
         </article>
         <aside className="flex-col gap-8 sticky top-24 self-start">
-          <TopContentApi mode="posts" />
-          <TopContentApi mode="categories" />
+          <Suspense fallback={<TopContentSkeleton mode="posts" />}>
+            <TopContent mode="posts" />
+          </Suspense>
+          <Suspense fallback={<TopContentSkeleton mode="categories" />}>
+            <TopContent mode="categories" />
+          </Suspense>
         </aside>
       </section>
     </main>

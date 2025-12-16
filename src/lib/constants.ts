@@ -2,7 +2,7 @@
  * 앱 전역 상수
  */
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const PAGINATION = {
   DEFAULT_LIMIT: 20,
@@ -25,6 +25,9 @@ export const EXTERNAL_LINKS = {
 } as const;
 
 export const INTERSECTION_OBSERVER_OPTIONS = {
-  threshold: 0.1,
-  rootMargin: "100px",
+  threshold: 0,
+  rootMargin: "200px",
 } as const;
+
+// 글 작성 권한이 있는 이메일
+export const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;

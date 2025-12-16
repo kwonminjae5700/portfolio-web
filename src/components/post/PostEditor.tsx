@@ -15,7 +15,7 @@ interface PostEditorProps {
 
 export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const router = useRouter();
-  const { user, isLoggedIn, isLoading: authLoading } = useAuth();
+  const { user, isLoggedIn, isLoading: authLoading, canWrite } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
@@ -31,10 +31,15 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const isEditMode = mode === "edit";
 
   useEffect(() => {
-    if (!authLoading && !isLoggedIn) {
-      router.push("/login");
+    if (!authLoading) {
+      if (!isLoggedIn) {
+        router.push("/login");
+      } else if (!canWrite) {
+        alert("글 작성 권한이 없습니다.");
+        router.push("/");
+      }
     }
-  }, [authLoading, isLoggedIn, router]);
+  }, [authLoading, isLoggedIn, canWrite, router]);
 
   useEffect(() => {
     const fetchCategories = async () => {

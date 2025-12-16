@@ -6,9 +6,11 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
   type ReactNode,
 } from "react";
 import { api } from "@/lib/api";
+import { ADMIN_EMAIL } from "@/lib/constants";
 import type { User } from "@/types/api";
 
 const TOKEN_KEY = "token";
@@ -17,6 +19,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isLoggedIn: boolean;
+  canWrite: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -60,10 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const canWrite = useMemo(() => {
+    return !!user && user.email === ADMIN_EMAIL;
+  }, [user]);
+
   const value: AuthContextType = {
     user,
     isLoading,
     isLoggedIn: !!user,
+    canWrite,
     login,
     logout,
     refreshUser,

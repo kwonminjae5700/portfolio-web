@@ -5,6 +5,7 @@ import { API_BASE_URL, ROUTES } from "@/lib/constants";
 import PostContent from "@/components/post/PostContent";
 import PostActions from "@/components/post/PostActions";
 import PostComments from "@/components/post/PostComments";
+import ViewCounter from "@/components/post/ViewCounter";
 import type { Article } from "@/types/api";
 
 interface PostDetailPageProps {
@@ -126,8 +127,28 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <ViewCounter articleId={article.id} />
       <main className="min-h-screen px-4 py-12 bg-gray-50 pt-30">
         <article className="max-w-4xl mx-auto">
+          <section className="pb-4 mb-12">
+            <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+            <div className="mt-8 flex items-center gap-2 text-sm text-gray-500">
+              <span>{article.author_name}</span>
+              <span>·</span>
+              <time>
+                작성일: {new Date(article.created_at).toLocaleDateString()}
+              </time>
+            </div>
+            {article.categories && article.categories.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {article.categories.map((category) => (
+                  <span key={category.id} className="text-mainBlue text-sm">
+                    # {category.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </section>
           <PostContent content={article.content} />
 
           <footer className="mt-8 pt-8 border-t border-gray-200">
