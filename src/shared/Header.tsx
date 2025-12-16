@@ -30,7 +30,7 @@ const Header = () => {
         </nav>
       </div>
       <div className="flex items-center gap-4">
-        <div className="border-[#d8d8d8] border-[1.3px] rounded-xs">
+        {/* <div className="border-[#d8d8d8] border-[1.3px] rounded-xs">
           <input
             className="px-3 py-2 w-56 focus:outline-none text-[14px]"
             placeholder="검색어를 입력하세요.."
@@ -39,7 +39,7 @@ const Header = () => {
         </div>
         <button className="border-[#e0e0e0] border-l-[1.5px] pl-4">
           <IconSearch size={22} className="text-gray-400" />
-        </button>
+        </button> */}
 
         {!isLoading && (
           <>
