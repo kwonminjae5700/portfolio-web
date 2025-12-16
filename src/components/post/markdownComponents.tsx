@@ -204,8 +204,8 @@ export const markdownComponents = {
     <p className="text-gray-700 leading-8 mb-6">{children}</p>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-blue-500 bg-blue-50 px-6 py-4 my-6 rounded-r-lg">
-      <div className="text-gray-700 italic">{children}</div>
+    <blockquote className="border-l-4 border-blue-500 bg-blue-50 px-6 py-4 my-6 rounded-r-lg text-gray-700 italic">
+      {children}
     </blockquote>
   ),
   ul: ({ children }: any) => (
@@ -265,8 +265,10 @@ export const markdownComponents = {
     </a>
   ),
   img: ({ src, alt }: any) => (
-    <div className="my-8 rounded-lg overflow-hidden shadow-md">
-      <img src={src} alt={alt} className="w-full h-auto" />
-    </div>
+    <img
+      src={src}
+      alt={alt}
+      className="my-8 rounded-lg overflow-hidden shadow-md w-full h-auto"
+    />
   ),
 };
