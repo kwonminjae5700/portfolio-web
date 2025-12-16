@@ -2,11 +2,20 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: var(--font-nanum), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-avenir), system-ui, -apple-system, sans-serif;
   --color-d2-orange: #D74800;
   --color-d2-orange-hover: #B03A00;
   --color-naver-green: #03C75A;
   --color-bg-sub: #F8F9FA;
+}
+
+@layer utilities {
+  .flex-col {
+    @apply flex flex-col;
+  }
+  .flex-row {
+    @apply flex flex-row;
+  }
 }
 
 * {

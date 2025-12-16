@@ -17,7 +17,6 @@ const config: Config = {
           600: '#2563eb',
           700: '#1d4ed8',
         },
-        
       },
     },
   },
