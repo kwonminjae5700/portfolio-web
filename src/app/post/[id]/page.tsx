@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { API_BASE_URL, ROUTES } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
 import PostContent from "@/components/post/PostContent";
 import PostActions from "@/components/post/PostActions";
+import PostComments from "@/components/post/PostComments";
 import type { Article } from "@/types/api";
 
 interface PostDetailPageProps {
@@ -144,6 +144,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               />
             </div>
           </footer>
+
+          <PostComments articleId={article.id} />
         </article>
       </main>
     </>

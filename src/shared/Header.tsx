@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { IconSearch, IconUser, IconPencil } from "@tabler/icons-react";
+import { IconUser, IconPencil } from "@tabler/icons-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES, EXTERNAL_LINKS } from "@/lib/constants";
 

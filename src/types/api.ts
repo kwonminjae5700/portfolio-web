@@ -77,6 +77,31 @@ export interface UpdateCategoryRequest {
   name: string;
 }
 
+// Comment 관련 타입
+export interface Comment {
+  id: number;
+  content: string;
+  author_id: number;
+  author_name: string;
+  article_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommentListResponse {
+  comments: Comment[];
+  next_cursor?: number | null;
+  has_more: boolean;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+}
+
+export interface UpdateCommentRequest {
+  content: string;
+}
+
 // API 에러 응답
 export interface ApiError {
   message: string;

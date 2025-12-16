@@ -2,14 +2,18 @@ import {
   Article,
   ArticleListResponse,
   Category,
+  Comment,
+  CommentListResponse,
   CreateArticleRequest,
   CreateCategoryRequest,
+  CreateCommentRequest,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
   UpdateArticleRequest,
   UpdateCategoryRequest,
+  UpdateCommentRequest,
   User,
 } from "@/types/api";
 import { API_BASE_URL, PAGINATION } from "./constants";
@@ -132,6 +136,51 @@ class ApiClient {
 
   async deleteCategory(id: number): Promise<void> {
     return this.request<void>(`/categories/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Comments API
+  async getComments(
+    articleId: number,
+    lastId?: number,
+    limit: number = PAGINATION.DEFAULT_LIMIT
+  ): Promise<CommentListResponse> {
+    const params = new URLSearchParams();
+    if (lastId) params.append("last_id", lastId.toString());
+    params.append("limit", limit.toString());
+
+    return this.request<CommentListResponse>(
+      `/articles/${articleId}/comments?${params.toString()}`
+    );
+  }
+
+  async createComment(
+    articleId: number,
+    data: CreateCommentRequest
+  ): Promise<Comment> {
+    return this.request<Comment>(`/articles/${articleId}/comments`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateComment(
+    articleId: number,
+    commentId: number,
+    data: UpdateCommentRequest
+  ): Promise<Comment> {
+    return this.request<Comment>(
+      `/articles/${articleId}/comments/${commentId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async deleteComment(articleId: number, commentId: number): Promise<void> {
+    return this.request<void>(`/articles/${articleId}/comments/${commentId}`, {
       method: "DELETE",
     });
   }

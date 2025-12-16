@@ -228,7 +228,7 @@ export const markdownComponents = {
       );
     }
     return (
-      <code className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 px-2 py-0.5 rounded-md font-mono text-sm border border-blue-100">
+      <code className="bg-linear-to-r from-blue-50 to-indigo-50 text-blue-600 px-2 py-0.5 rounded-md font-mono text-sm border border-blue-100">
         {children}
       </code>
     );

@@ -10,7 +10,7 @@ interface PostContentProps {
 
 export default function PostContent({ content }: PostContentProps) {
   return (
-    <div className="max-w-none">
+    <div className="max-w-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={markdownComponents}
