@@ -12,6 +12,13 @@ RUN npm install
 # 소스코드 복사
 COPY . .
 
+# 환경변수 설정 (빌드 시점)
+ARG NEXT_PUBLIC_API_URL=http://localhost:8080
+ARG NEXT_PUBLIC_ADMIN_EMAIL=admin@example.com
+
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_ADMIN_EMAIL=${NEXT_PUBLIC_ADMIN_EMAIL}
+
 # Next.js 빌드
 RUN npm run build
 
