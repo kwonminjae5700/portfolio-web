@@ -10,8 +10,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        title: '#434a53',
+        title: '#4a4a53',
         content: '#666666',
+        mainBlue: "#3F35FF",
         primary: {
           50: '#f0f4ff',
           100: '#e0e9ff',

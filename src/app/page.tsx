@@ -2,7 +2,7 @@ import Post from "@/components/Post";
 import TopContent from "@/components/TopContent";
 import Image from "next/image";
 
-export default function Page() {
+export default function HomePage() {
   return (
     <main>
       <Image
@@ -14,14 +14,6 @@ export default function Page() {
       />
       <section className="px-78 py-14 flex justify-between gap-16">
         <article className="w-7xl flex-col gap-14">
-          <Post />
-          <Post />
-          <Post />
-          <Post />
-          <Post />
-          <Post />
-          <Post />
-          <Post />
           <Post />
         </article>
         <aside className="flex-col gap-8 sticky top-24 self-start">

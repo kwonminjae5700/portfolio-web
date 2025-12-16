@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "title": "React와 Next.js 시작하기",
+    "date": "2024-12-10",
+    "excerpt": "React와 Next.js의 기본 개념을 알아봅시다.",
+    "content": "# React와 Next.js 시작하기\n\n## 소개\nReact는 사용자 인터페이스를 구축하기 위한 JavaScript 라이브러리입니다. Next.js는 React 프레임워크로, 프로덕션 환경에서 최고의 성능을 제공합니다.\n\n## React의 장점\n\n- 선언형 프로그래밍\n- 컴포넌트 기반 아키텍처\n- 강력한 커뮤니티\n- 풍부한 라이브러리 생태계\n\n## Next.js 특징\n\n### 서버 사이드 렌더링 (SSR)\n\nNext.js는 기본적으로 SSR을 지원합니다:\n\n```javascript\nexport async function getServerSideProps(context) {\n  return {\n    props: {\n      data: 'Hello from server'\n    }\n  }\n}\n```\n\n### 정적 사이트 생성 (SSG)\n\n정적 페이지는 빌드 시점에 생성됩니다.\n\n```javascript\nexport async function getStaticProps() {\n  const posts = await fetchPosts()\n  return {\n    props: { posts },\n    revalidate: 3600\n  }\n}\n```\n\n## 시작하기\n\n```bash\nnpx create-next-app@latest my-app\ncd my-app\nnpm run dev\n```\n\n이제 localhost:3000에서 애플리케이션이 실행됩니다!\n\n## 결론\n\nReact와 Next.js는 현대적인 웹 개발을 위한 필수 도구입니다."
+  },
+  {
+    "id": "2",
+    "title": "TypeScript의 고급 기능 활용",
+    "date": "2024-12-08",
+    "excerpt": "TypeScript로 타입 안정성 있는 코드를 작성해봅시다.",
+    "content": "# TypeScript의 고급 기능 활용\n\n## 개요\n\nTypeScript는 JavaScript에 정적 타입을 추가하여 개발 생산성과 코드 품질을 향상시킵니다.\n\n## 제네릭 (Generics)\n\n제네릭을 사용하면 재사용 가능한 컴포넌트를 만들 수 있습니다:\n\n```typescript\nfunction identity<T>(arg: T): T {\n  return arg;\n}\n\nlet output = identity<string>(\"hello\");\n```\n\n## 유틸리티 타입\n\nTypeScript는 유용한 유틸리티 타입을 제공합니다:\n\n| 타입 | 설명 |\n|------|------|\n| `Partial<T>` | 모든 속성이 선택적 |\n| `Readonly<T>` | 모든 속성이 읽기 전용 |\n| `Pick<T, K>` | 특정 속성만 선택 |\n| `Omit<T, K>` | 특정 속성 제외 |\n\n## 타입 가드\n\n```typescript\nfunction isString(value: unknown): value is string {\n  return typeof value === 'string';\n}\n```\n\n## 마무리\n\nTypeScript를 제대로 활용하면 더욱 안정적인 코드를 작성할 수 있습니다!"
+  },
+  {
+    "id": "3",
+    "title": "Tailwind CSS로 빠른 스타일링",
+    "date": "2024-12-06",
+    "excerpt": "Tailwind CSS를 활용한 효율적인 스타일링 방법을 알아봅시다.",
+    "content": "# Tailwind CSS로 빠른 스타일링\n\n## Tailwind CSS란?\n\nTailwind CSS는 유틸리티 퍼스트 CSS 프레임워크입니다. 미리 정의된 클래스들을 조합하여 디자인을 빠르게 구현할 수 있습니다.\n\n## 설치 및 설정\n\n### 설치\n\n```bash\nnpm install -D tailwindcss postcss autoprefixer\nnpx tailwindcss init -p\n```\n\n### 설정파일\n\n```javascript\n// tailwind.config.js\nmodule.exports = {\n  content: [\n    './pages/**/*.{js,ts,jsx,tsx}',\n    './components/**/*.{js,ts,jsx,tsx}',\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}\n```\n\n## 기본 사용법\n\n> Tailwind CSS의 강력한 점은 일관된 디자인 시스템을 쉽게 구축할 수 있다는 것입니다.\n\n```jsx\n<div className=\"bg-blue-500 text-white p-4 rounded-lg shadow-lg\">\n  Beautiful Card\n</div>\n```\n\n## 반응형 디자인\n\nTailwind는 모바일 퍼스트 접근 방식을 사용합니다:\n\n```jsx\n<div className=\"w-full md:w-1/2 lg:w-1/3\">\n  반응형 요소\n</div>\n```\n\n## 커스텀 확장\n\n자신만의 스타일을 추가할 수 있습니다:\n\n```javascript\ntheme: {\n  extend: {\n    colors: {\n      'custom-blue': '#1E40AF',\n    }\n  }\n}\n```\n\n## 결론\n\nTailwind CSS는 현대적이고 효율적인 웹 개발 경험을 제공합니다!"
+  }
+]

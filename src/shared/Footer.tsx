@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full h-40 py-10 px-78 border-t mt-10 bg-gray-100 border-gray-300 flex items-baseline justify-between">
+    <footer className="w-full h-40 py-10 px-78 border-t bg-gray-100 border-gray-300 flex items-baseline justify-between">
       <div className="flex-col">
         <div className="font-semibold mb-2">Contact Me</div>
         <div className="flex-col gap-0.5">

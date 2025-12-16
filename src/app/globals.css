@@ -5,10 +5,7 @@
   --font-sans: var(--font-avenir), system-ui, -apple-system, sans-serif;
   --color-title: #434a53;
   --color-content: #666666;
-  --color-d2-orange: #D74800;
-  --color-d2-orange-hover: #B03A00;
-  --color-naver-green: #03C75A;
-  --color-bg-sub: #F8F9FA;
+  --color-mainBlue: #3F35FF;
 }
 
 @layer utilities {
@@ -68,4 +65,45 @@ html.dark body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(71, 85, 105);
+}
+
+/* Markdown Content Styles */
+.prose pre {
+  @apply bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto mb-6 font-mono text-sm leading-relaxed;
+}
+
+.prose code {
+  @apply bg-gray-100 text-orange-600 px-2 py-1 rounded font-mono text-sm;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-orange-500 bg-orange-50 px-6 py-4 my-6 rounded-r-lg italic text-gray-700;
+}
+
+.prose table {
+  @apply w-full border-collapse my-6;
+}
+
+.prose table thead {
+  @apply bg-gray-100 border-b-2 border-gray-300;
+}
+
+.prose table th {
+  @apply px-4 py-3 text-left font-semibold text-gray-900;
+}
+
+.prose table td {
+  @apply px-4 py-3 text-gray-700 border-b border-gray-200;
+}
+
+.prose table tr:hover {
+  @apply bg-gray-50;
+}
+
+.prose a {
+  @apply text-orange-600 hover:text-orange-700 underline font-semibold transition;
+}
+
+.prose img {
+  @apply rounded-lg shadow-md my-8;
 }
