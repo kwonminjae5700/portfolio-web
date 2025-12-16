@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import "./globals.css";
+
 import Header from "@/shared/Header";
-import Footer from "@/shared/Footer";
 
 const nanum = Nanum_Gothic({
   weight: ["400", "700", "800"],
@@ -33,11 +33,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${nanum.variable} font-sans antialiased bg-white text-gray-900`}
+        className={`${nanum.variable} font-sans antialiased bg-white text-gray-900 pt-21`}
       >
         <Header />
         {children}
-        <Footer />
       </body>
     </html>
   );
