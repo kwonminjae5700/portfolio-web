@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 import Header from "@/shared/Header";
+import Footer from "@/shared/Footer";
 
 const avenir = localFont({
   src: [
@@ -57,6 +58,7 @@ export default function RootLayout({
       >
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );
