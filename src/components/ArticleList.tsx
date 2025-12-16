@@ -1,12 +1,9 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useArticles, useInfiniteScroll } from "@/hooks";
-import { LoadingSpinner, EmptyState } from "@/components/ui";
-import { formatDate, truncateText } from "@/lib/utils";
+import { truncateText } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import type { Article } from "@/types/api";
+import type { Article, ArticleListResponse } from "@/types/api";
+import ArticleListClient from "./ArticleListClient";
 
 const CONTENT_PREVIEW_LENGTH = 200;
 
@@ -14,10 +11,11 @@ interface ArticleCardProps {
   article: Article;
 }
 
-const ArticleCard = ({ article }: ArticleCardProps) => (
+// 서버 컴포넌트 - SEO를 위해 서버에서 렌더링
+export const ArticleCard = ({ article }: ArticleCardProps) => (
   <Link href={ROUTES.POST(article.id)}>
-    <div className="w-full flex gap-8 pb-8 border-b border-gray-300 hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2">
-      <div className="flex-col gap-3 h-fit flex-1">
+    <div className="w-full flex gap-4 pb-8 border-b border-gray-300 -m-2">
+      <div className="flex-col gap-1 h-fit flex-1">
         <h2 className="text-2xl font-normal mb-2 text-title hover:text-black">
           {article.title}
         </h2>
@@ -32,17 +30,14 @@ const ArticleCard = ({ article }: ArticleCardProps) => (
               ))}
             </div>
           )}
-          <span className="text-sm text-gray-400">
-            {article.author_name} • {formatDate(article.created_at)}
-          </span>
         </div>
       </div>
-      <div className="w-[180px] h-[110px] bg-gray-200 rounded-lg shrink-0 overflow-hidden">
+      <div className="w-[180px] h-auto bg-gray-200 shrink-0">
         <Image
           src="/ex.png"
           alt={article.title}
           width={180}
-          height={110}
+          height={130}
           className="object-cover w-full h-full"
         />
       </div>
@@ -50,42 +45,37 @@ const ArticleCard = ({ article }: ArticleCardProps) => (
   </Link>
 );
 
-const ArticleList = () => {
-  const { articles, isLoading, isLoadingMore, hasMore, loadMore } =
-    useArticles();
-  const { loadMoreRef } = useInfiniteScroll({
-    hasMore,
-    isLoading: isLoadingMore,
-    onLoadMore: loadMore,
-  });
+interface ArticleListProps {
+  initialData: ArticleListResponse;
+}
 
-  if (isLoading) {
-    return (
-      <LoadingSpinner size="md" text="글을 불러오는 중..." className="py-8" />
-    );
-  }
+// 서버 컴포넌트 - 초기 데이터를 서버에서 렌더링
+const ArticleList = ({ initialData }: ArticleListProps) => {
+  const { articles, has_more, last_id } = initialData;
 
   if (articles.length === 0) {
     return (
-      <EmptyState
-        title="아직 작성된 글이 없습니다."
-        actionLabel="첫 글을 작성해보세요!"
-        actionHref={ROUTES.WRITE}
-      />
+      <div className="text-center py-12">
+        <p className="text-gray-500 text-lg">아직 작성된 글이 없습니다.</p>
+        <Link
+          href={ROUTES.WRITE}
+          className="inline-block mt-4 text-mainBlue hover:underline"
+        >
+          첫 글을 작성해보세요!
+        </Link>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10">
+      {/* 초기 데이터는 서버에서 렌더링 (SEO) */}
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
       ))}
 
-      <div ref={loadMoreRef} className="py-4">
-        {isLoadingMore && (
-          <LoadingSpinner size="md" text="글을 불러오는 중..." />
-        )}
-      </div>
+      {/* 무한 스크롤은 클라이언트에서 처리 */}
+      <ArticleListClient initialLastId={last_id} initialHasMore={has_more} />
     </div>
   );
 };
