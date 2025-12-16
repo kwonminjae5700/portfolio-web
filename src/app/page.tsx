@@ -17,8 +17,14 @@ export default function Page() {
           <Post />
           <Post />
           <Post />
+          <Post />
+          <Post />
+          <Post />
+          <Post />
+          <Post />
+          <Post />
         </article>
-        <aside className="flex-col gap-8">
+        <aside className="flex-col gap-8 sticky top-24 self-start">
           <TopContent mode="posts" />
           <TopContent mode="categories" />
         </aside>
