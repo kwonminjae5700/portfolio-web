@@ -9,18 +9,13 @@ const Header = () => {
         <nav>
           <ul className="flex space-x-8 text-[18px] text-gray-400">
             <li>
-              <Link href="/portfolio" className="hover:underline">
+              <a href="https://kwon5700.kr" className="hover:underline">
                 Portfolio
-              </Link>
+              </a>
             </li>
             <li>
               <Link href="/" className="hover:underline">
                 Blog
-              </Link>
-            </li>
-            <li>
-              <Link href="/about" className="hover:underline">
-                About
               </Link>
             </li>
           </ul>
