@@ -1,6 +1,5 @@
 import Post from "@/components/Post";
 import TopContent from "@/components/TopContent";
-import TopPost from "@/components/TopPost";
 import Image from "next/image";
 
 export default function Page() {
@@ -13,12 +12,15 @@ export default function Page() {
         height={150}
         className="w-full h-auto"
       />
-      <section className="px-98 py-14 flex justify-between gap-16">
-        <article className="w-7xl flex-col gap-12">
+      <section className="px-78 py-14 flex justify-between gap-16">
+        <article className="w-7xl flex-col gap-14">
+          <Post />
+          <Post />
           <Post />
         </article>
-        <aside>
-          <TopContent content={<TopPost />} />
+        <aside className="flex-col gap-8">
+          <TopContent mode="posts" />
+          <TopContent mode="categories" />
         </aside>
       </section>
     </main>
