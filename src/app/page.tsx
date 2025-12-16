@@ -6,11 +6,11 @@ export default function HomePage() {
   return (
     <main>
       <Image
-        src="/background.png"
+        src="/bridge.png"
         alt="Kwon5700 Profile Picture"
-        width={1920}
-        height={150}
-        className="w-full h-auto"
+        width={1728}
+        height={500}
+        className="w-full h-[550px] object-cover"
       />
       <section className="px-78 py-14 flex justify-between gap-16">
         <article className="w-7xl flex-col gap-14">

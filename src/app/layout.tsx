@@ -53,9 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body
-        className={`${avenir.variable} antialiased bg-white text-gray-900 pt-18`}
-      >
+      <body className={`${avenir.variable} antialiased bg-white text-gray-900`}>
         <Header />
         {children}
         <Footer />

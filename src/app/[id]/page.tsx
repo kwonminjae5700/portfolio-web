@@ -4,6 +4,7 @@ import PostContent from "@/components/post/PostContent";
 import PostFooter from "@/components/post/PostFooter";
 import posts from "@/data/posts.json";
 
+import Link from "next/link";
 interface Post {
   id: string;
   title: string;
@@ -61,19 +62,26 @@ export default async function PostPage({
 
   if (!post) {
     return (
-      <main className="min-h-screen px-4 py-12">
-        <div className="max-w-3xl mx-auto">
+      <main className="min-h-screen px-4 py-12 pt-30">
+        <div className="max-w-3xl mx-auto flex-col gap-10">
           <h1 className="text-4xl font-bold text-gray-800">
-            포스트를 찾을 수 없습니다
+            원하시는 글을 찾을 수 없습니다.
           </h1>
-          <p className="text-gray-600 mt-4">요청하신 포스트 ID: {id}</p>
+          <div className="flex justify-end border-t border-gray-200 pt-4">
+            <Link
+              href="/"
+              className="text-blue-500 hover:text-blue-600 font-semibold transition"
+            >
+              ← 목록으로 돌아가기
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 bg-gray-50">
+    <main className="min-h-screen px-4 py-12 bg-gray-50 pt-30">
       <article className="max-w-4xl mx-auto">
         <PostHeader
           title={post.title}
