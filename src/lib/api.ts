@@ -11,6 +11,10 @@ import {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  SendVerificationCodeRequest,
+  SendVerificationCodeResponse,
+  VerifyCodeRequest,
+  VerifyCodeResponse,
   UpdateArticleRequest,
   UpdateCategoryRequest,
   UpdateCommentRequest,
@@ -66,6 +70,21 @@ class ApiClient {
 
   async register(data: RegisterRequest): Promise<RegisterResponse> {
     return this.request<RegisterResponse>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Email Verification API
+  async sendVerificationCode(data: SendVerificationCodeRequest): Promise<SendVerificationCodeResponse> {
+    return this.request<SendVerificationCodeResponse>("/auth/send-verification-code", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async verifyCode(data: VerifyCodeRequest): Promise<VerifyCodeResponse> {
+    return this.request<VerifyCodeResponse>("/auth/verify-code", {
       method: "POST",
       body: JSON.stringify(data),
     });
