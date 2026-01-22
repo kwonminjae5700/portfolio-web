@@ -10,19 +10,24 @@ interface Article {
 
 async function getArticles(): Promise<Article[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/articles`, {
+    const res = await fetch(`${API_BASE_URL}/articles?limit=100`, {
       next: { revalidate: 3600 }, // 1시간마다 재검증
+      cache: "no-store",
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error("Failed to fetch articles for sitemap:", res.status);
+      return [];
+    }
     const data = await res.json();
-    return data.items || [];
-  } catch {
+    return data.articles || [];
+  } catch (error) {
+    console.error("Error fetching articles for sitemap:", error);
     return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
   // 정적 페이지들
   const staticPages: MetadataRoute.Sitemap = [

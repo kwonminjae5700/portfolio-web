@@ -31,7 +31,7 @@ const avenir = localFont({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
 export const viewport: Viewport = {
   width: "device-width",

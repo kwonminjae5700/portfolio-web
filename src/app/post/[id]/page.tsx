@@ -31,7 +31,8 @@ export async function generateMetadata({
 }: PostDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const article = await getArticle(id);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
   if (!article) {
     return {

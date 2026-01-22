@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description:
       "권민재의 개발 블로그입니다. 웹 개발, Next.js, React, TypeScript 등 프로그래밍 관련 글을 공유합니다.",
     type: "website",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr",
     images: [
       {
         url: "/bridge.png",
@@ -72,7 +72,8 @@ async function getInitialArticles(): Promise<ArticleListResponse> {
 
 export default async function HomePage() {
   const initialData = await getInitialArticles();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kwon5700.kr";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
   // JSON-LD 구조화 데이터 (WebSite)
   const jsonLdWebsite = {
