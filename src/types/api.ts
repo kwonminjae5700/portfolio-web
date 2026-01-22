@@ -102,6 +102,24 @@ export interface UpdateCommentRequest {
   content: string;
 }
 
+// 이메일 인증 관련 요청/응답
+export interface SendVerificationCodeRequest {
+  email: string;
+}
+
+export interface SendVerificationCodeResponse {
+  message: string;
+}
+
+export interface VerifyCodeRequest {
+  email: string;
+  code: string;
+}
+
+export interface VerifyCodeResponse {
+  message: string;
+}
+
 // API 에러 응답
 export interface ApiError {
   message: string;
