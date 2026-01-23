@@ -213,6 +213,39 @@ class ApiClient {
       method: "DELETE",
     });
   }
+
+  // Image Upload API
+  async uploadImage(file: File): Promise<{ url: string; fileName: string; size: number }> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error("인증이 필요합니다.");
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: "이미지 업로드 실패" }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data;
+  }
+
+  async deleteImage(fileName: string): Promise<void> {
+    return this.request<void>(`/upload/image?fileName=${fileName}`, {
+      method: "DELETE",
+    });
+  }
 }
 
 export const api = new ApiClient();

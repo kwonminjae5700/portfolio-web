@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -27,6 +27,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [showCategoryInput, setShowCategoryInput] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState<string[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const isEditMode = mode === "edit";
 
@@ -78,7 +80,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "글을 불러올 수 없습니다."
+          err instanceof Error ? err.message : "글을 불러올 수 없습니다.",
         );
       } finally {
         setIsLoadingArticle(false);
@@ -94,7 +96,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+        : [...prev, categoryId],
     );
   };
 
@@ -112,7 +114,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
       setShowCategoryInput(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "카테고리 생성에 실패했습니다."
+        err instanceof Error ? err.message : "카테고리 생성에 실패했습니다.",
       );
     } finally {
       setIsCreatingCategory(false);
@@ -158,8 +160,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
         err instanceof Error
           ? err.message
           : isEditMode
-          ? "글 수정에 실패했습니다."
-          : "글 작성에 실패했습니다."
+            ? "글 수정에 실패했습니다."
+            : "글 작성에 실패했습니다.",
       );
     } finally {
       setIsLoading(false);
@@ -178,6 +180,105 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "글 삭제에 실패했습니다.");
+    }
+  };
+
+  // 이미지 업로드 핸들러
+  const uploadImage = async (file: File) => {
+    // 파일 크기 체크 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError("파일 크기는 10MB를 초과할 수 없습니다.");
+      return;
+    }
+
+    // 파일 형식 체크
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setError(
+        "허용되지 않는 파일 형식입니다. (jpeg, jpg, png, gif, webp만 가능)",
+      );
+      return;
+    }
+
+    const uploadId = `${Date.now()}-${file.name}`;
+    setUploadingImages((prev) => [...prev, uploadId]);
+    setError("");
+
+    try {
+      const result = await api.uploadImage(file);
+
+      // 커서 위치에 이미지 마크다운 삽입
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const imageMarkdown = `![${file.name}](${result.url})`;
+        const newContent =
+          content.substring(0, start) + imageMarkdown + content.substring(end);
+
+        setContent(newContent);
+
+        // 커서 위치를 이미지 마크다운 뒤로 이동
+        setTimeout(() => {
+          textarea.focus();
+          const newPosition = start + imageMarkdown.length;
+          textarea.setSelectionRange(newPosition, newPosition);
+        }, 0);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "이미지 업로드에 실패했습니다.",
+      );
+    } finally {
+      setUploadingImages((prev) => prev.filter((id) => id !== uploadId));
+    }
+  };
+
+  // 파일 선택 핸들러
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => uploadImage(file));
+    }
+    // input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = "";
+  };
+
+  // 드래그 앤 드롭 핸들러
+  const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          uploadImage(file);
+        }
+      });
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+  };
+
+  // 붙여넣기 핸들러
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          uploadImage(file);
+        }
+      }
     }
   };
 
@@ -328,19 +429,46 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             <div className="grid grid-cols-2 gap-6">
               {/* 에디터 */}
               <div>
-                <label
-                  htmlFor="content"
-                  className="block text-xl font-medium text-gray-700 mb-2"
-                >
-                  내용 (Markdown 지원)
-                </label>
+                <div className="flex justify-between items-center mb-2">
+                  <label
+                    htmlFor="content"
+                    className="block text-xl font-medium text-gray-700"
+                  >
+                    내용 (Markdown 지원)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {uploadingImages.length > 0 && (
+                      <span className="text-sm text-mainBlue">
+                        업로드 중... ({uploadingImages.length})
+                      </span>
+                    )}
+                    <label
+                      htmlFor="imageUpload"
+                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg cursor-pointer transition"
+                    >
+                      📷 이미지 추가
+                    </label>
+                    <input
+                      id="imageUpload"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      multiple
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
                 <textarea
                   id="content"
+                  ref={textareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onPaste={handlePaste}
                   rows={25}
                   className="w-full h-[600px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition font-mono text-sm resize-none"
-                  placeholder="내용을 입력하세요... (Markdown 문법을 사용할 수 있습니다)"
+                  placeholder="내용을 입력하세요... (Markdown 문법을 사용할 수 있습니다)&#10;&#10;💡 이미지 추가 방법:&#10;1. 📷 이미지 추가 버튼 클릭&#10;2. 이미지를 드래그 앤 드롭&#10;3. Ctrl+V (또는 Cmd+V)로 붙여넣기"
                 />
               </div>
 
@@ -376,8 +504,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 {isLoading
                   ? "저장 중..."
                   : isEditMode
-                  ? "수정하기"
-                  : "작성하기"}
+                    ? "수정하기"
+                    : "작성하기"}
               </button>
             </div>
           </form>
