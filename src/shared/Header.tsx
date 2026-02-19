@@ -17,7 +17,11 @@ const Header = () => {
         <nav>
           <ul className="flex space-x-8 text-[18px] text-gray-400">
             <li>
-              <a href={EXTERNAL_LINKS.PORTFOLIO} className="hover:underline">
+              <a
+                href={EXTERNAL_LINKS.PORTFOLIO}
+                target="_blank"
+                className="hover:underline"
+              >
                 Portfolio
               </a>
             </li>

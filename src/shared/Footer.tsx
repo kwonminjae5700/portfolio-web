@@ -12,8 +12,12 @@ export default function Footer() {
       <div className="flex-col items-end">
         <div className="font-semibold mb-2">Kwon5700&apos;s Link</div>
         <div className="flex-col gap-0.5 items-end">
-          <a href={EXTERNAL_LINKS.PORTFOLIO}>포트폴리오 바로가기</a>
-          <a href={EXTERNAL_LINKS.GITHUB}>깃허브 바로가기</a>
+          <a href={EXTERNAL_LINKS.PORTFOLIO} target="_blank">
+            포트폴리오 바로가기
+          </a>
+          <a href={EXTERNAL_LINKS.GITHUB} target="_blank">
+            깃허브 바로가기
+          </a>
         </div>
       </div>
     </footer>
