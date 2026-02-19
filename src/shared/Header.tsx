@@ -9,7 +9,7 @@ const Header = () => {
   const { user, isLoggedIn, isLoading, canWrite } = useAuth();
 
   return (
-    <header className="w-full h-18 px-78 flex justify-between items-center fixed top-0 bg-white z-50 border-b border-gray-300">
+    <header className="w-full h-18 px-6 sm:px-12 md:px-24 lg:px-48 xl:px-78 flex justify-between items-center fixed top-0 bg-white z-50 border-b border-gray-300 transition-all duration-300">
       <div className="flex space-x-20 items-center">
         <Link href={ROUTES.HOME} className="text-2xl font-bold">
           Kwon5700

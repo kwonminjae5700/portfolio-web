@@ -2,7 +2,7 @@ import { EXTERNAL_LINKS } from "@/lib/constants";
 
 export default function Footer() {
   return (
-    <footer className="w-full h-40 py-10 px-78 border-t bg-gray-100 border-gray-300 flex items-baseline justify-between">
+    <footer className="w-full h-40 py-10 px-6 sm:px-12 md:px-24 lg:px-48 xl:px-78 border-t bg-gray-100 border-gray-300 flex items-baseline justify-between transition-all duration-300">
       <div className="flex-col">
         <div className="font-semibold mb-2">Contact Me</div>
         <div className="flex-col gap-0.5">

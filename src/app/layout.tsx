@@ -114,7 +114,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${avenir.variable} antialiased bg-white text-gray-900`}>
-        <Providers>{children}</Providers>
+        <div className="mobile-block-message">
+          <p>데스크탑 환경을 이용해주세요!</p>
+        </div>
+        <div className="main-content">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );
