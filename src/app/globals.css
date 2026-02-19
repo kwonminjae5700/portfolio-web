@@ -112,3 +112,16 @@ html.dark body {
 .prose img {
   @apply rounded-lg shadow-md my-8;
 }
+
+/* KaTeX 디스플레이 수식 스타일 */
+.katex-display-block {
+  display: block;
+  text-align: center;
+  font-size: 1.7em;
+  overflow-x: auto;
+}
+
+/* KaTeX 인라인 수식 스타일 */
+.katex-inline {
+  font-size: 1.05em;
+}
