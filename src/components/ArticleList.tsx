@@ -20,16 +20,16 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
   return (
     <Link href={ROUTES.POST(article.id)}>
       <div className="w-full flex gap-4 pb-8 border-b border-gray-300 -m-2">
-        <div className="flex-col gap-1 h-fit flex-1">
-          <h2 className="text-2xl font-normal mb-2 text-title hover:text-black">
+        <div className="flex flex-col gap-1 h-fit flex-1 min-w-0">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-normal mb-2 text-title hover:text-black">
             {article.title}
           </h2>
-          <p className="line-clamp-2 text-content hover:text-black">
+          <p className="line-clamp-2 text-content hover:text-black text-sm sm:text-base">
             {truncateText(article.content, CONTENT_PREVIEW_LENGTH)}
           </p>
-          <div className="flex items-center gap-4 mt-3">
+          <div className="flex items-center gap-4 mt-3 flex-wrap">
             {article.categories && article.categories.length > 0 && (
-              <div className="space-x-2 text-mainBlue">
+              <div className="space-x-2 text-mainBlue text-sm sm:text-base">
                 {article.categories.map((cat) => (
                   <span key={cat.id}># {cat.name}</span>
                 ))}
@@ -37,13 +37,13 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
             )}
           </div>
         </div>
-        <div className="w-[180px] h-auto bg-gray-200 shrink-0">
+        <div className="relative w-[110px] sm:w-[140px] md:w-[180px] min-h-[75px] sm:min-h-[95px] md:min-h-[120px] bg-gray-200 shrink-0 overflow-hidden rounded-sm">
           <Image
             src={imageSrc}
             alt={article.title}
-            width={180}
-            height={120}
-            className="object-cover w-[180px] h-[120px]"
+            fill
+            sizes="(max-width: 640px) 110px, (max-width: 768px) 140px, 180px"
+            className="object-cover"
           />
         </div>
       </div>

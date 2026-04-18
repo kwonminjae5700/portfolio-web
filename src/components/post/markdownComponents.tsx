@@ -166,7 +166,7 @@ function CodeBlock({
           style={oneDark}
           showLineNumbers
           lineNumberStyle={{
-            minWidth: "3em",
+            minWidth: "2.5em",
             paddingRight: "1em",
             color: "#6b7280",
             borderRight: "1px solid #374151",
@@ -176,7 +176,7 @@ function CodeBlock({
             padding: "16px 0",
             margin: "0",
             backgroundColor: "#1e1e1e",
-            fontSize: "14px",
+            fontSize: "13px",
             lineHeight: "1.6",
           }}
           wrapLongLines
@@ -190,21 +190,27 @@ function CodeBlock({
 
 export const markdownComponents = {
   h1: ({ children }: any) => (
-    <h1 className="text-4xl font-bold text-gray-900 mt-12 mb-6 pt-8 border-t border-gray-200 first:border-0 first:pt-0 first:mt-0">
+    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mt-8 sm:mt-10 md:mt-12 mb-4 sm:mb-6 pt-6 sm:pt-8 border-t border-gray-200 first:border-0 first:pt-0 first:mt-0">
       {children}
     </h1>
   ),
   h2: ({ children }: any) => (
-    <h2 className="text-3xl font-bold text-gray-900 mt-10 mb-4">{children}</h2>
+    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-8 md:mt-10 mb-3 md:mb-4">
+      {children}
+    </h2>
   ),
   h3: ({ children }: any) => (
-    <h3 className="text-2xl font-bold text-gray-800 mt-8 mb-3">{children}</h3>
+    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mt-6 md:mt-8 mb-2 md:mb-3">
+      {children}
+    </h3>
   ),
   p: ({ children }: any) => (
-    <p className="text-gray-700 leading-8 mb-6">{children}</p>
+    <p className="text-gray-700 leading-7 sm:leading-8 mb-4 sm:mb-6">
+      {children}
+    </p>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-blue-500 bg-blue-50 px-6 py-4 my-6 rounded-r-lg text-gray-700 italic">
+    <blockquote className="border-l-4 border-blue-500 bg-blue-50 px-4 sm:px-6 py-3 sm:py-4 my-4 sm:my-6 rounded-r-lg text-gray-700 italic">
       {children}
     </blockquote>
   ),

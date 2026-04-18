@@ -71,7 +71,7 @@ function CodeInput({
           onPaste={handlePaste}
           disabled={disabled}
           autoComplete="one-time-code"
-          className="w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
       ))}
     </div>

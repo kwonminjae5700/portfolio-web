@@ -129,10 +129,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewCounter articleId={article.id} />
-      <main className="min-h-screen px-4 py-12 bg-gray-50 pt-30">
+      <main className="min-h-screen px-4 py-12 bg-gray-50 pt-24 md:pt-30">
         <article className="max-w-4xl mx-auto">
           <section className="pb-4 mb-12">
-            <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+              {article.title}
+            </h1>
             <div className="mt-8 flex items-center gap-2 text-sm text-gray-500">
               <span>{article.author_name}</span>
               <span>·</span>

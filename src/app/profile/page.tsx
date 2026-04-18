@@ -66,12 +66,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-78">
+    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-8 md:px-12 lg:px-24 xl:px-48">
       <div className="max-w-full mx-auto">
         {/* 프로필 정보 */}
-        <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
+        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6 md:p-8 mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">내 프로필</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              내 프로필
+            </h1>
             <button
               onClick={handleLogout}
               className="text-red-500 hover:text-red-700 text-sm transition"
@@ -82,15 +84,17 @@ export default function ProfilePage() {
 
           <div className="space-y-4">
             <div className="flex items-center">
-              <div className="w-20 h-20 bg-mainBlue rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-mainBlue rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0">
                 {user.username.charAt(0).toUpperCase()}
               </div>
-              <div className="ml-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+              <div className="ml-4 sm:ml-6 min-w-0">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                   {user.username}
                 </h2>
-                <p className="text-gray-500">{user.email}</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-gray-500 text-sm sm:text-base break-all">
+                  {user.email}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-400 mt-1">
                   가입일: {formatDate(user.created_at)}
                 </p>
               </div>
@@ -99,21 +103,21 @@ export default function ProfilePage() {
         </div>
 
         {/* 내가 작성한 글 */}
-        <div className="bg-white rounded-xl shadow-sm p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
+        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6 md:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">
               내가 작성한 글 ({myArticles.length})
             </h2>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link
                 href="/categories"
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition"
+                className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition"
               >
                 카테고리 관리
               </Link>
               <Link
                 href="/write"
-                className="px-4 py-2 bg-mainBlue text-white rounded-lg text-sm hover:bg-blue-600 transition"
+                className="px-3 sm:px-4 py-2 bg-mainBlue text-white rounded-lg text-sm hover:bg-blue-600 transition"
               >
                 새 글 작성
               </Link>
@@ -134,19 +138,19 @@ export default function ProfilePage() {
               {myArticles.map((article) => (
                 <div
                   key={article.id}
-                  className="border-b border-gray-200 pb-4 last:border-0 last:pb-0 flex justify-between items-center"
+                  className="border-b border-gray-200 pb-4 last:border-0 last:pb-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <Link href={`/post/${article.id}`}>
-                      <h3 className="text-lg font-medium text-gray-900 hover:text-mainBlue transition">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900 hover:text-mainBlue transition">
                         {article.title}
                       </h3>
                     </Link>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-500 flex-wrap">
                       <span>{formatDate(article.created_at)}</span>
                       <span>조회수 {article.view_count}</span>
                       {article.categories && article.categories.length > 0 && (
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 flex-wrap">
                           {article.categories.map((cat) => (
                             <span key={cat.id} className="text-mainBlue">
                               #{cat.name}
@@ -158,7 +162,7 @@ export default function ProfilePage() {
                   </div>
                   <Link
                     href={`/edit/${article.id}`}
-                    className="text-sm text-gray-400 hover:text-gray-600 transition"
+                    className="text-sm text-gray-400 hover:text-gray-600 transition self-end sm:self-auto shrink-0"
                   >
                     수정
                   </Link>

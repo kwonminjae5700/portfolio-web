@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 // 로딩 스켈레톤 컴포넌트
 const TopContentSkeleton = ({ mode }: { mode: "posts" | "categories" }) => (
-  <div className="w-64 pb-10 border-b border-gray-300 animate-pulse">
+  <div className="w-full md:w-56 lg:w-64 pb-8 lg:pb-10 border-b border-gray-300 animate-pulse">
     <div className="h-7 bg-gray-200 rounded w-32 mb-4"></div>
     {mode === "posts" ? (
       <div className="flex flex-col gap-3">
@@ -132,14 +132,14 @@ export default async function HomePage() {
           alt="Kwon5700 Profile Picture"
           width={1728}
           height={500}
-          className="w-full h-[550px] object-cover"
+          className="w-full h-[220px] sm:h-[320px] md:h-[420px] lg:h-[550px] object-cover"
           priority
         />
-        <section className="px-78 py-14 flex justify-between gap-16">
-          <article className="w-7xl flex-col gap-14">
+        <section className="px-6 sm:px-12 md:px-12 lg:px-24 xl:px-48 2xl:px-78 py-10 md:py-14 flex flex-col md:flex-row md:justify-between gap-10 md:gap-8 lg:gap-16">
+          <article className="flex-1 min-w-0 flex flex-col gap-14">
             <ArticleList initialData={initialData} />
           </article>
-          <aside className="flex-col gap-8 sticky top-24 self-start">
+          <aside className="w-full md:w-56 lg:w-64 flex flex-col gap-8 md:sticky md:top-24 md:self-start shrink-0">
             <Suspense fallback={<TopContentSkeleton mode="posts" />}>
               <TopContent mode="posts" />
             </Suspense>

@@ -123,9 +123,11 @@ export default function CategoriesPage() {
   return (
     <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">카테고리 관리</h1>
+        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-8">
+          <div className="flex justify-between items-center mb-6 sm:mb-8 gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              카테고리 관리
+            </h1>
             <Link
               href="/profile"
               className="text-sm text-gray-500 hover:text-gray-700 transition"

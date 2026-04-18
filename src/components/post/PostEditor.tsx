@@ -308,11 +308,11 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const cancelHref = isEditMode && articleId ? `/post/${articleId}` : "/";
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-78">
+    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-8 md:px-12 lg:px-24 xl:px-48">
       <div className="max-w-full mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
+          <div className="flex justify-between items-center mb-6 md:mb-8">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               {isEditMode ? "글 수정" : "새 글 작성"}
             </h1>
             {isEditMode && (
@@ -426,7 +426,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             </div>
 
             {/* 에디터 & 미리보기 영역 */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* 에디터 */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -467,7 +467,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   onDragOver={handleDragOver}
                   onPaste={handlePaste}
                   rows={25}
-                  className="w-full h-[600px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition font-mono text-sm resize-none"
+                  className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition font-mono text-sm resize-none"
                   placeholder="내용을 입력하세요... (Markdown 문법을 사용할 수 있습니다)&#10;&#10;💡 이미지 추가 방법:&#10;1. 📷 이미지 추가 버튼 클릭&#10;2. 이미지를 드래그 앤 드롭&#10;3. Ctrl+V (또는 Cmd+V)로 붙여넣기"
                 />
               </div>
@@ -477,7 +477,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 <label className="block text-xl font-medium text-gray-700 mb-2">
                   미리보기
                 </label>
-                <div className="w-full h-[600px] px-4 py-3 border border-gray-200 rounded-lg bg-white overflow-y-auto prose prose-sm max-w-none">
+                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-gray-200 rounded-lg bg-white overflow-y-auto prose prose-sm max-w-none">
                   {content ? (
                     <PostContent content={content} />
                   ) : (

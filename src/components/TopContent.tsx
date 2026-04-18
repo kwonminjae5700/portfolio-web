@@ -83,7 +83,7 @@ const TopContent = async ({ mode }: TopContentProps) => {
     mode === "posts" ? "글이 없습니다." : "카테고리가 없습니다.";
 
   return (
-    <section className="w-64 pb-10 border-b border-gray-300">
+    <section className="w-full md:w-56 lg:w-64 pb-8 lg:pb-10 border-b border-gray-300">
       <h2 className="font-bold text-xl mb-4">{title}</h2>
 
       {isEmpty ? (
