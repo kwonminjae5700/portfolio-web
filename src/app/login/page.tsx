@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/lib/constants";
 import { ErrorMessage } from "@/components/ui";
+import { inputBase } from "@/components/ui/buttonStyles";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,31 +34,29 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center bg-white py-12 px-5">
+      <div className="max-w-md w-full">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            로그인
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <h1 className="text-center text-2xl font-bold text-ink">로그인</h1>
+          <p className="mt-2 text-center text-sm text-muted">
             아직 계정이 없으신가요?{" "}
             <Link
               href={ROUTES.REGISTER}
-              className="font-medium text-mainBlue hover:text-blue-500"
+              className="font-medium text-accent hover:text-accent-deep transition-colors"
             >
               회원가입
             </Link>
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
           <ErrorMessage message={error} />
 
           <div className="space-y-4">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-body mb-1.5"
               >
                 이메일
               </label>
@@ -69,7 +68,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                className={inputBase}
                 placeholder="이메일을 입력하세요"
               />
             </div>
@@ -77,7 +76,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-body mb-1.5"
               >
                 비밀번호
               </label>
@@ -89,7 +88,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                className={inputBase}
                 placeholder="비밀번호를 입력하세요"
               />
             </div>
@@ -98,16 +97,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-mainBlue hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainBlue transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
-        <div className="text-center flex justify-end">
+        <div className="mt-8 text-center">
           <Link
             href={ROUTES.HOME}
-            className="text-sm text-gray-500 hover:text-gray-700 transition"
+            className="text-sm text-muted hover:text-ink transition-colors"
           >
             ← 홈으로 돌아가기
           </Link>

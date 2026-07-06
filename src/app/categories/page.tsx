@@ -114,23 +114,23 @@ export default function CategoriesPage() {
 
   if (authLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">로딩 중...</div>
+      <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center">
+        <div className="text-muted">로딩 중...</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
+    <main className="bg-white pt-10 pb-12 px-5">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-5 sm:p-8">
+        <div className="bg-white border border-line rounded-xl p-5 sm:p-8">
           <div className="flex justify-between items-center mb-6 sm:mb-8 gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-ink">
               카테고리 관리
             </h1>
             <Link
               href="/profile"
-              className="text-sm text-gray-500 hover:text-gray-700 transition"
+              className="text-sm text-muted hover:text-ink transition"
             >
               ← 프로필로 돌아가기
             </Link>
@@ -144,7 +144,7 @@ export default function CategoriesPage() {
 
           {/* 새 카테고리 추가 폼 */}
           <form onSubmit={handleAddCategory} className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-body mb-2">
               새 카테고리 추가
             </label>
             <div className="flex gap-2">
@@ -153,12 +153,12 @@ export default function CategoriesPage() {
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="카테고리 이름"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                className="flex-1 px-4 py-2 border border-line rounded-lg text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
               />
               <button
                 type="submit"
                 disabled={isAdding || !newCategoryName.trim()}
-                className="px-4 py-2 bg-mainBlue text-white rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 <IconPlus size={18} />
                 {isAdding ? "추가 중..." : "추가"}
@@ -168,14 +168,14 @@ export default function CategoriesPage() {
 
           {/* 카테고리 목록 */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               카테고리 목록 ({categories.length})
             </h2>
 
             {isLoading ? (
-              <div className="text-center py-8 text-gray-500">로딩 중...</div>
+              <div className="text-center py-8 text-muted">로딩 중...</div>
             ) : categories.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted">
                 아직 카테고리가 없습니다. 위에서 새 카테고리를 추가해보세요!
               </div>
             ) : (
@@ -183,7 +183,7 @@ export default function CategoriesPage() {
                 {categories.map((category) => (
                   <div
                     key={category.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-wash rounded-lg"
                   >
                     {editingId === category.id ? (
                       /* 수정 모드 */
@@ -192,18 +192,18 @@ export default function CategoriesPage() {
                           type="text"
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                          className="flex-1 px-3 py-2 border border-line rounded-lg text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
                           autoFocus
                         />
                         <button
                           onClick={() => handleUpdateCategory(category.id)}
-                          className="px-3 py-2 bg-mainBlue text-white rounded-lg hover:bg-blue-600 transition text-sm"
+                          className="px-3 py-2 bg-accent text-white rounded-lg hover:bg-accent-deep transition text-sm"
                         >
                           저장
                         </button>
                         <button
                           onClick={cancelEditing}
-                          className="px-3 py-2 text-gray-600 hover:text-gray-800 transition text-sm"
+                          className="px-3 py-2 text-muted hover:text-ink transition text-sm"
                         >
                           취소
                         </button>
@@ -212,24 +212,24 @@ export default function CategoriesPage() {
                       /* 표시 모드 */
                       <>
                         <div>
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-ink">
                             {category.name}
                           </span>
-                          <span className="text-sm text-gray-400 ml-2">
+                          <span className="text-sm text-faint ml-2">
                             ID: {category.id}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => startEditing(category)}
-                            className="p-2 text-gray-400 hover:text-mainBlue transition"
+                            className="p-2 text-faint hover:text-muted transition"
                             title="수정"
                           >
                             <IconPencil size={18} />
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(category.id)}
-                            className="p-2 text-gray-400 hover:text-red-500 transition"
+                            className="p-2 text-faint hover:text-red-500 transition"
                             title="삭제"
                           >
                             <IconTrash size={18} />
@@ -245,10 +245,7 @@ export default function CategoriesPage() {
         </div>
 
         <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="text-gray-500 hover:text-gray-700 transition"
-          >
+          <Link href="/" className="text-muted hover:text-ink transition">
             ← 홈으로 돌아가기
           </Link>
         </div>
