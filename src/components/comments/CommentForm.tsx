@@ -40,32 +40,28 @@ export default function CommentForm({ onSubmit }: CommentFormProps) {
 
   if (!isLoggedIn) {
     return (
-      <div className="bg-gray-50 rounded-lg p-4 text-center">
-        <p className="text-gray-600 mb-2">
-          댓글을 작성하려면 로그인이 필요합니다.
+      <div className="bg-wash rounded-lg p-5 text-center">
+        <p className="text-sm text-muted">
+          댓글을 작성하려면{" "}
+          <Link
+            href={ROUTES.LOGIN}
+            className="text-accent font-medium hover:text-accent-deep transition-colors"
+          >
+            로그인
+          </Link>
+          이 필요합니다.
         </p>
-        <Link
-          href={ROUTES.LOGIN}
-          className="text-mainBlue hover:underline font-medium"
-        >
-          로그인하기
-        </Link>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="flex items-center gap-2 text-sm text-gray-600">
-        <span className="font-medium">{user?.username}</span>
-        <span>님으로 댓글 작성</span>
-      </div>
-
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="댓글을 입력하세요..."
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent resize-none"
+        placeholder={`${user?.username}님, 댓글을 남겨보세요`}
+        className="w-full px-4 py-3 text-sm border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none placeholder:text-faint"
         rows={3}
         disabled={isSubmitting}
       />
@@ -76,7 +72,7 @@ export default function CommentForm({ onSubmit }: CommentFormProps) {
         <button
           type="submit"
           disabled={isSubmitting || !content.trim()}
-          className="px-4 py-2 bg-mainBlue text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 text-sm bg-accent text-white rounded-lg hover:bg-accent-deep disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
         >
           {isSubmitting ? "작성 중..." : "댓글 작성"}
         </button>

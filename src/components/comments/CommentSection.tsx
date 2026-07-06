@@ -82,14 +82,14 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500">{error}</p>
+        <p className="text-sm text-red-500">{error}</p>
         <button
           onClick={() => {
             setIsLoading(true);
             setError(null);
             fetchComments();
           }}
-          className="mt-2 text-mainBlue hover:underline"
+          className="mt-2 text-sm text-accent hover:text-accent-deep transition-colors"
         >
           다시 시도
         </button>
@@ -99,16 +99,19 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900">
-        댓글 {comments.length > 0 && `(${comments.length})`}
+      <h2 className="text-lg font-bold text-ink">
+        댓글{" "}
+        {comments.length > 0 && (
+          <span className="text-accent">{comments.length}</span>
+        )}
       </h2>
 
       <CommentForm onSubmit={handleCreateComment} />
 
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-line">
         {comments.length === 0 ? (
-          <p className="text-center py-8 text-gray-500">
-            아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
+          <p className="text-center py-10 text-sm text-faint">
+            아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요.
           </p>
         ) : (
           <>
@@ -126,7 +129,7 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
-                  className="px-4 py-2 text-mainBlue hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-muted hover:text-ink hover:bg-wash rounded-lg transition-colors disabled:opacity-50"
                 >
                   {isLoadingMore ? "불러오는 중..." : "더 보기"}
                 </button>

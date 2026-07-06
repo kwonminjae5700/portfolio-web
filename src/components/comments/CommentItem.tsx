@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatRelativeTime } from "@/lib/utils";
 import type { Comment } from "@/types/api";
 
 interface CommentItemProps {
@@ -21,17 +22,6 @@ export default function CommentItem({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isOwner = user?.id === comment.author_id;
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleUpdate = async () => {
     if (!editContent.trim() || isSubmitting) return;
@@ -66,27 +56,56 @@ export default function CommentItem({
   };
 
   return (
-    <div className="py-4 border-b border-gray-200 last:border-b-0">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-medium text-gray-900">
-              {comment.author_name}
-            </span>
-            <span className="text-sm text-gray-500">
-              {formatDate(comment.created_at)}
-            </span>
-            {comment.updated_at !== comment.created_at && (
-              <span className="text-xs text-gray-400">(수정됨)</span>
+    <div className="py-5">
+      <div className="flex items-start gap-3">
+        {/* 이니셜 아바타 */}
+        <div
+          aria-hidden="true"
+          className="w-9 h-9 shrink-0 rounded-full bg-accent-soft text-accent-deep flex items-center justify-center text-sm font-semibold select-none"
+        >
+          {comment.author_name.charAt(0)}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-sm font-semibold text-ink">
+                {comment.author_name}
+              </span>
+              <span className="text-xs text-faint">
+                {formatRelativeTime(comment.created_at)}
+              </span>
+              {comment.updated_at !== comment.created_at && (
+                <span className="text-xs text-faint">(수정됨)</span>
+              )}
+            </div>
+
+            {isOwner && !isEditing && (
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-xs text-faint hover:text-muted transition-colors"
+                  disabled={isSubmitting}
+                >
+                  수정
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="text-xs text-faint hover:text-red-500 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  삭제
+                </button>
+              </div>
             )}
           </div>
 
           {isEditing ? (
-            <div className="space-y-2">
+            <div className="mt-2 space-y-2">
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none"
                 rows={3}
                 disabled={isSubmitting}
               />
@@ -94,44 +113,25 @@ export default function CommentItem({
                 <button
                   onClick={handleUpdate}
                   disabled={isSubmitting || !editContent.trim()}
-                  className="px-3 py-1 text-sm bg-mainBlue text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs bg-accent text-white rounded-md hover:bg-accent-deep disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSubmitting ? "수정 중..." : "수정"}
                 </button>
                 <button
                   onClick={handleCancel}
                   disabled={isSubmitting}
-                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs text-muted hover:bg-wash rounded-md disabled:opacity-50 transition-colors"
                 >
                   취소
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-gray-700 whitespace-pre-wrap">
+            <p className="mt-1.5 text-sm leading-relaxed text-body whitespace-pre-wrap">
               {comment.content}
             </p>
           )}
         </div>
-
-        {isOwner && !isEditing && (
-          <div className="flex gap-2 ml-4">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-sm text-gray-500 hover:text-mainBlue"
-              disabled={isSubmitting}
-            >
-              수정
-            </button>
-            <button
-              onClick={handleDelete}
-              className="text-sm text-gray-500 hover:text-red-500"
-              disabled={isSubmitting}
-            >
-              삭제
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
