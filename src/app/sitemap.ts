@@ -8,11 +8,15 @@ interface Article {
   created_at: string;
 }
 
+interface Category {
+  id: number;
+  name: string;
+}
+
 async function getArticles(): Promise<Article[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/articles?limit=100`, {
       next: { revalidate: 3600 }, // 1시간마다 재검증
-      cache: "no-store",
     });
     if (!res.ok) {
       console.error("Failed to fetch articles for sitemap:", res.status);
@@ -22,6 +26,18 @@ async function getArticles(): Promise<Article[]> {
     return data.articles || [];
   } catch (error) {
     console.error("Error fetching articles for sitemap:", error);
+    return [];
+  }
+}
+
+async function getCategories(): Promise<Category[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/categories`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
     return [];
   }
 }
@@ -37,16 +53,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 1,
     },
-    {
-      url: `${baseUrl}/categories`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.5,
-    },
   ];
 
   // 동적 게시글 페이지들
-  const articles = await getArticles();
+  const [articles, categories] = await Promise.all([
+    getArticles(),
+    getCategories(),
+  ]);
+
   const articlePages: MetadataRoute.Sitemap = articles.map((article) => ({
     url: `${baseUrl}/post/${article.id}`,
     lastModified: new Date(article.updated_at || article.created_at),
@@ -54,5 +68,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...articlePages];
+  const categoryPages: MetadataRoute.Sitemap = categories.map((category) => ({
+    url: `${baseUrl}/category/${category.id}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+  }));
+
+  return [...staticPages, ...articlePages, ...categoryPages];
 }
