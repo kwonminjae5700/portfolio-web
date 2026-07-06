@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
 import { Providers } from "./providers";
 
@@ -12,7 +13,7 @@ const avenir = localFont({
     },
     {
       path: "../fonts/Avenir-Book.ttf",
-      weight: "500",
+      weight: "350",
     },
     {
       path: "../fonts/Avenir-Regular.ttf",
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
       "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
     images: [
       {
-        url: "/bridge.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Kwon5700's Blog",
@@ -93,7 +94,7 @@ export const metadata: Metadata = {
     title: "Kwon5700's Blog",
     description:
       "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
-    images: ["/bridge.png"],
+    images: ["/og-image.jpg"],
   },
   alternates: {
     canonical: siteUrl,
@@ -113,7 +114,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={`${avenir.variable} antialiased bg-white text-gray-900`}>
+      <body className={`${avenir.variable} antialiased bg-white text-body`}>
         <Providers>{children}</Providers>
       </body>
     </html>

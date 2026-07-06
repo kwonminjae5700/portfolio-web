@@ -17,7 +17,11 @@ export const ROUTES = {
   PROFILE: "/profile",
   POST: (id: number | string) => `/post/${id}`,
   EDIT: (id: number | string) => `/edit/${id}`,
+  CATEGORY: (id: number | string) => `/category/${id}`,
 } as const;
+
+// 모든 페이지가 공유하는 콘텐츠 컨테이너
+export const CONTAINER = "max-w-6xl mx-auto px-5 sm:px-8 lg:px-10";
 
 export const EXTERNAL_LINKS = {
   PORTFOLIO: "https://kwon5700.kr",

@@ -30,7 +30,7 @@ export interface Article {
 export interface ArticleListResponse {
   articles: Article[];
   has_more: boolean;
-  last_id: number | null;
+  next_cursor: number | null;
 }
 
 // Auth 관련 요청/응답

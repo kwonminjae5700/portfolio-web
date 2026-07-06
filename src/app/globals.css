@@ -1,11 +1,27 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: var(--font-avenir), system-ui, -apple-system, sans-serif;
-  --color-title: #434a53;
-  --color-content: #666666;
-  --color-mainBlue: #3F35FF;
+  --font-sans: var(--font-avenir), "Pretendard Variable", Pretendard,
+    -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+
+  /* 텍스트 */
+  --color-ink: #1b1e24;
+  --color-body: #3a414b;
+  --color-muted: #5c6470;
+  --color-faint: #8a919c;
+
+  /* 면 · 선 */
+  --color-line: #e7e9ed;
+  --color-wash: #f6f7f9;
+
+  /* 브랜드 */
+  --color-accent: #3f35ff;
+  --color-accent-deep: #2e26d1;
+  --color-accent-soft: #eeedfc;
+
+  /* 코드 블록 크롬 */
+  --color-code-chrome: #1e2128;
+  --color-code-bg: #16181d;
 }
 
 * {
@@ -13,36 +29,30 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
-body {
-  font-family: var(--font-sans);
-  color: rgb(15, 23, 42);
-  background-color: rgb(255, 255, 255);
-}
-
-html.dark body {
-  color: rgb(241, 245, 250);
-  background-color: rgb(3, 7, 18);
-}
-
-::selection {
-  background-color: #3F35FF;
-  color: white;          
-}
-
-/* Smooth transitions */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
 }
 
-/* Custom scrollbar */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-body);
+  background-color: #ffffff;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* 스크롤바 — 얇고 조용하게 */
 ::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -50,58 +60,12 @@ html.dark body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(100, 116, 139);
-  border-radius: 4px;
+  background: var(--color-line);
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(71, 85, 105);
-}
-
-/* Markdown Content Styles */
-.prose pre {
-  @apply bg-transparent p-0 m-0 overflow-visible;
-}
-
-.prose code {
-  @apply bg-gray-100 text-blue-600 px-2 py-1 rounded font-mono text-sm;
-}
-
-/* 코드 블록 내부의 code는 스타일 제거 */
-.prose pre code {
-  @apply bg-transparent p-0 text-inherit;
-}
-
-.prose blockquote {
-  @apply border-l-4 border-orange-500 bg-orange-50 px-6 py-4 my-6 rounded-r-lg italic text-gray-700;
-}
-
-.prose table {
-  @apply w-full border-collapse my-6;
-}
-
-.prose table thead {
-  @apply bg-gray-100 border-b-2 border-gray-300;
-}
-
-.prose table th {
-  @apply px-4 py-3 text-left font-semibold text-gray-900;
-}
-
-.prose table td {
-  @apply px-4 py-3 text-gray-700 border-b border-gray-200;
-}
-
-.prose table tr:hover {
-  @apply bg-gray-50;
-}
-
-.prose a {
-  @apply text-orange-600 hover:text-orange-700 underline font-semibold transition;
-}
-
-.prose img {
-  @apply rounded-lg shadow-md my-8;
+  background: var(--color-faint);
 }
 
 /* KaTeX 디스플레이 수식 스타일 */
@@ -132,4 +96,55 @@ html.dark body {
   max-width: 100%;
   overflow-x: auto;
   vertical-align: middle;
+}
+
+/* 모션 — 사용자 설정 존중 */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .article-card {
+    animation: fade-up 0.5s ease-out both;
+  }
+  .article-card:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .article-card:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .article-card:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .article-card:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .article-card:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .article-card:nth-child(6) {
+    animation-delay: 300ms;
+  }
+
+  .menu-panel {
+    animation: menu-in 0.18s ease-out both;
+  }
 }
