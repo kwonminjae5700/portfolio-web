@@ -31,20 +31,9 @@ const ArticleListClient = ({
   // 초기 글 ID 목록을 Set으로 변환 (중복 체크용)
   const initialIdsRef = useRef(new Set(initialArticleIds));
 
-  // 디버깅용 로그
-  useEffect(() => {
-    console.log("ArticleListClient 초기화:", {
-      initialLastId,
-      initialHasMore,
-      hasMore,
-    });
-  }, [initialLastId, initialHasMore, hasMore]);
-
   const loadMore = useCallback(async () => {
     // ref로 중복 호출 방지
     if (isLoadingRef.current || !hasMore) return;
-
-    console.log("loadMore 호출됨, lastId:", lastId);
 
     setIsLoadingMore(true);
     isLoadingRef.current = true;
@@ -54,7 +43,6 @@ const ArticleListClient = ({
         lastId ?? undefined,
         PAGINATION.DEFAULT_LIMIT
       );
-      console.log("API 응답:", data);
 
       if (data.articles && data.articles.length > 0) {
         setAdditionalArticles((prev) => {
@@ -70,10 +58,9 @@ const ArticleListClient = ({
           return [...prev, ...newArticles];
         });
 
-        // 응답의 last_id 대신, 받은 글 목록의 마지막 글 ID 사용
+        // 응답 커서 대신, 받은 글 목록의 마지막 글 ID 사용
         const lastArticle = data.articles[data.articles.length - 1];
         setLastId(lastArticle.id);
-        console.log("새로운 lastId 설정:", lastArticle.id);
       }
       setHasMore(data.has_more ?? false);
     } catch (err) {
@@ -126,9 +113,9 @@ const ArticleListClient = ({
         {isLoadingMore ? (
           <LoadingSpinner size="md" text="글을 불러오는 중..." />
         ) : hasMore ? (
-          <div className="text-gray-400 text-sm">스크롤하여 더 보기</div>
+          <div className="text-faint text-sm">스크롤하여 더 보기</div>
         ) : additionalArticles.length > 0 ? (
-          <div className="text-gray-400 text-sm">모든 글을 불러왔습니다.</div>
+          <div className="text-faint text-sm">모든 글을 불러왔습니다.</div>
         ) : null}
       </div>
     </>

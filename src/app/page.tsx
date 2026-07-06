@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
 import TopContent from "@/components/TopContent";
-import { API_BASE_URL, PAGINATION } from "@/lib/constants";
+import { API_BASE_URL, CONTAINER, PAGINATION } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import type { ArticleListResponse } from "@/types/api";
 
 // 홈페이지 메타데이터
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr",
     images: [
       {
-        url: "/bridge.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Kwon5700's Blog",
@@ -30,24 +31,24 @@ export const metadata: Metadata = {
 
 // 로딩 스켈레톤 컴포넌트
 const TopContentSkeleton = ({ mode }: { mode: "posts" | "categories" }) => (
-  <div className="w-full md:w-56 lg:w-64 pb-8 lg:pb-10 border-b border-gray-300 animate-pulse">
-    <div className="h-7 bg-gray-200 rounded w-32 mb-4"></div>
+  <div className="w-full md:w-56 lg:w-64 pb-8 lg:pb-10 border-b border-line animate-pulse">
+    <div className="h-5 bg-wash rounded w-24 mb-5"></div>
     {mode === "posts" ? (
       <div className="flex flex-col gap-3">
         {[...Array(5)].map((_, i) => (
           <div key={i} className="flex gap-3 items-start py-2">
-            <div className="w-4 h-4 bg-gray-200 rounded"></div>
+            <div className="w-4 h-4 bg-wash rounded"></div>
             <div className="flex-1">
-              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-3 bg-gray-100 rounded w-16"></div>
+              <div className="h-4 bg-wash rounded w-full mb-2"></div>
+              <div className="h-3 bg-wash rounded w-16"></div>
             </div>
           </div>
         ))}
       </div>
     ) : (
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-8 bg-gray-200 rounded-3xl w-20"></div>
+          <div key={i} className="h-8 bg-wash rounded-full w-20"></div>
         ))}
       </div>
     )}
@@ -62,11 +63,11 @@ async function getInitialArticles(): Promise<ArticleListResponse> {
       { next: { revalidate: 60 } }, // 60초마다 재검증
     );
     if (!res.ok) {
-      return { articles: [], has_more: false, last_id: null };
+      return { articles: [], has_more: false, next_cursor: null };
     }
     return res.json();
   } catch {
-    return { articles: [], has_more: false, last_id: null };
+    return { articles: [], has_more: false, next_cursor: null };
   }
 }
 
@@ -127,16 +128,40 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBlog) }}
       />
       <main>
-        <Image
-          src="/bridge.png"
-          alt="Kwon5700 Profile Picture"
-          width={1728}
-          height={500}
-          className="w-full h-[220px] sm:h-[320px] md:h-[420px] lg:h-[550px] object-cover"
-          priority
-        />
-        <section className="px-6 sm:px-12 md:px-12 lg:px-24 xl:px-48 2xl:px-78 py-10 md:py-14 flex flex-col md:flex-row md:justify-between gap-10 md:gap-8 lg:gap-16">
-          <article className="flex-1 min-w-0 flex flex-col gap-14">
+        {/* 히어로 — 직접 찍은 여행 사진이 이 블로그의 시그니처 */}
+        <div className="relative h-[200px] sm:h-[280px] md:h-[340px] lg:h-[380px] bg-wash">
+          <Image
+            src="/bridge.jpg"
+            alt="샌프란시스코 금문교 풍경"
+            fill
+            sizes="100vw"
+            className="object-cover object-[50%_68%]"
+            priority
+          />
+          <div className={cn(CONTAINER, "relative h-full")}>
+            <span className="absolute bottom-4 left-5 sm:left-8 lg:left-10 rounded-full bg-black/40 px-3 py-1 text-[11px] tracking-wide text-white/90 backdrop-blur-sm">
+              Golden Gate Bridge · San Francisco
+            </span>
+          </div>
+        </div>
+
+        {/* 마스트헤드 */}
+        <section className={cn(CONTAINER, "pt-9 md:pt-12")}>
+          <h1 className="text-2xl md:text-[28px] font-bold text-ink">
+            권민재의 개발 기록
+          </h1>
+          <p className="mt-2 text-[15px] text-muted">
+            개발하며 배운 것들을 기록합니다.
+          </p>
+        </section>
+
+        <section
+          className={cn(
+            CONTAINER,
+            "py-9 md:py-12 flex flex-col md:flex-row md:justify-between gap-10 md:gap-8 lg:gap-16",
+          )}
+        >
+          <article className="flex-1 min-w-0">
             <ArticleList initialData={initialData} />
           </article>
           <aside className="w-full md:w-56 lg:w-64 flex flex-col gap-8 md:sticky md:top-24 md:self-start shrink-0">
