@@ -18,7 +18,7 @@ export default function PostActions({ articleId, authorId }: PostActionsProps) {
   return (
     <Link
       href={ROUTES.EDIT(articleId)}
-      className="text-sm text-gray-400 hover:text-gray-600 transition"
+      className="text-sm text-faint hover:text-muted transition-colors"
     >
       수정하기
     </Link>
