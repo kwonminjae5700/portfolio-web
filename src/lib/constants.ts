@@ -23,6 +23,9 @@ export const ROUTES = {
 // 모든 페이지가 공유하는 콘텐츠 컨테이너
 export const CONTAINER = "max-w-6xl mx-auto px-5 sm:px-8 lg:px-10";
 
+// 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다
+export const SITE_DESCRIPTION = "개발하며 배운 것들을 기록하는 권민재의 블로그.";
+
 export const EXTERNAL_LINKS = {
   PORTFOLIO: "https://kwon5700.kr",
   GITHUB: "https://github.com/kwonminjae5700",

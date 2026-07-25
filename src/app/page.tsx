@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
 import TopContent from "@/components/TopContent";
-import { API_BASE_URL, CONTAINER, PAGINATION } from "@/lib/constants";
+import { API_BASE_URL, CONTAINER, PAGINATION, SITE_DESCRIPTION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ArticleListResponse } from "@/types/api";
 
@@ -11,11 +11,11 @@ import type { ArticleListResponse } from "@/types/api";
 export const metadata: Metadata = {
   title: "Kwon5700's Blog - 개발 블로그",
   description:
-    "권민재의 개발 블로그입니다. 웹 개발, Next.js, React, TypeScript 등 프로그래밍 관련 글을 공유합니다.",
+    SITE_DESCRIPTION,
   openGraph: {
     title: "Kwon5700's Blog - 개발 블로그",
     description:
-      "권민재의 개발 블로그입니다. 웹 개발, Next.js, React, TypeScript 등 프로그래밍 관련 글을 공유합니다.",
+      SITE_DESCRIPTION,
     type: "website",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr",
     images: [
@@ -83,7 +83,7 @@ export default async function HomePage() {
     name: "Kwon5700's Blog",
     url: siteUrl,
     description:
-      "권민재의 개발 블로그입니다. 웹 개발, Next.js, React, TypeScript 등 프로그래밍 관련 글을 공유합니다.",
+      SITE_DESCRIPTION,
     author: {
       "@type": "Person",
       name: "권민재",
@@ -98,7 +98,7 @@ export default async function HomePage() {
     "@type": "Blog",
     name: "Kwon5700's Blog",
     description:
-      "권민재의 개발 블로그입니다. 웹 개발, Next.js, React, TypeScript 등 프로그래밍 관련 글을 공유합니다.",
+      SITE_DESCRIPTION,
     url: siteUrl,
     author: {
       "@type": "Person",

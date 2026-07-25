@@ -59,7 +59,6 @@ export async function generateMetadata({
   return {
     title: article.title,
     description,
-    keywords: [...categories, "블로그", "개발"],
     authors: [{ name: article.author_name }],
     openGraph: {
       title: article.title,
