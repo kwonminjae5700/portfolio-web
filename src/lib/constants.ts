@@ -2,7 +2,20 @@
  * 앱 전역 상수
  */
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+/**
+ * 미설정이면 모든 요청 URL이 "undefined/articles/3"이 되는데, 이 문자열은
+ * 환경이 달라도 똑같아서 백엔드가 다른데 fetch 캐시 키가 겹친다.
+ * (로컬 3번 글 자리에 프로덕션 3번 글이 보이는 사고) 그래서 빠르게 터뜨린다.
+ * 끝 슬래시도 잘라낸다 — "…:8080/"과 "…:8080"은 캐시 키가 다르다.
+ */
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL;
+if (!rawApiUrl) {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL이 설정되지 않았습니다. .env를 확인하세요.",
+  );
+}
+
+export const API_BASE_URL = rawApiUrl.replace(/\/+$/, "");
 
 export const PAGINATION = {
   DEFAULT_LIMIT: 20,

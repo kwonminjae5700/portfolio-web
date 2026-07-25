@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "dev:clean": "rm -rf .next && next dev",
+    "build:clean": "rm -rf .next && next build",
     "start": "next start",
     "lint": "eslint",
     "analyze": "ANALYZE=true npm run build"
