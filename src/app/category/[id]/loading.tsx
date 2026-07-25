@@ -19,7 +19,7 @@ export default function CategoryLoading() {
                   <div className="h-4 bg-wash rounded w-full" />
                   <div className="h-4 bg-wash rounded w-2/3" />
                 </div>
-                <div className="w-[150px] aspect-[4/3] bg-wash rounded-lg shrink-0" />
+                <div className="w-[150px] aspect-[4/3] bg-wash rounded-xl shrink-0" />
               </div>
             ))}
           </div>

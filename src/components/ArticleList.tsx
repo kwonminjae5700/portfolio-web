@@ -53,7 +53,7 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
           <span>{estimateReadingTime(article.content)}분 분량</span>
         </div>
       </div>
-      <div className="relative w-[100px] sm:w-[150px] md:w-[180px] aspect-[4/3] self-center shrink-0 overflow-hidden rounded-lg bg-wash">
+      <div className="relative w-[100px] sm:w-[150px] md:w-[180px] aspect-[4/3] self-center shrink-0 overflow-hidden rounded-xl bg-wash">
         <Image
           src={imageSrc}
           alt=""

@@ -91,7 +91,7 @@ export default function CommentItem({
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="text-xs text-faint hover:text-red-500 transition-colors"
+                  className="text-xs text-faint hover:text-danger transition-colors"
                   disabled={isSubmitting}
                 >
                   삭제
@@ -105,7 +105,7 @@ export default function CommentItem({
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none"
                 rows={3}
                 disabled={isSubmitting}
               />

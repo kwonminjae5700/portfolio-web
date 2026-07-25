@@ -82,7 +82,7 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-danger">{error}</p>
         <button
           onClick={() => {
             setIsLoading(true);
@@ -129,7 +129,7 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
-                  className="px-4 py-2 text-sm text-muted hover:text-ink hover:bg-wash rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-muted hover:text-ink hover:bg-wash rounded-md transition-colors disabled:opacity-50"
                 >
                   {isLoadingMore ? "불러오는 중..." : "더 보기"}
                 </button>

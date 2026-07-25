@@ -76,7 +76,11 @@ const Header = () => {
               href={ROUTES.HOME}
               className="text-[22px] font-black tracking-tight text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-sm"
             >
-              Kwon<span className="text-accent">5700</span>
+              Kwon5700
+              <span
+                aria-hidden="true"
+                className="ml-1 inline-block h-1.5 w-1.5 rounded-[1.5px] bg-accent align-baseline"
+              />
             </Link>
             <nav className="hidden md:block">
               <ul className="flex gap-7 text-[15px]">
@@ -111,7 +115,7 @@ const Header = () => {
                   {canWrite && (
                     <Link
                       href={ROUTES.WRITE}
-                      className="flex items-center gap-1.5 px-3 py-2 text-sm text-accent hover:bg-accent-soft rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm text-accent hover:bg-accent-soft rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                     >
                       <IconPencil size={17} />
                       글쓰기
@@ -119,7 +123,7 @@ const Header = () => {
                   )}
                   <Link
                     href={ROUTES.PROFILE}
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted hover:text-ink hover:bg-wash rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted hover:text-ink hover:bg-wash rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                   >
                     <IconUser size={17} />
                     {user?.username}
@@ -129,13 +133,13 @@ const Header = () => {
                 <div className="flex items-center gap-1">
                   <Link
                     href={ROUTES.LOGIN}
-                    className="px-3.5 py-2 text-sm text-muted hover:text-ink rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                    className="px-3.5 py-2 text-sm text-muted hover:text-ink rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                   >
                     로그인
                   </Link>
                   <Link
                     href={ROUTES.REGISTER}
-                    className="px-3.5 py-2 text-sm text-white bg-accent rounded-lg hover:bg-accent-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
+                    className="px-3.5 py-2 text-sm text-white bg-accent rounded-md hover:bg-accent-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
                   >
                     회원가입
                   </Link>
@@ -148,7 +152,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen((v) => !v)}
             aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={isMenuOpen}
-            className="md:hidden p-2 -mr-2 text-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-lg"
+            className="md:hidden p-2 -mr-2 text-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-md"
           >
             {isMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
           </button>
@@ -171,7 +175,7 @@ const Header = () => {
                     onClick={closeMenu}
                     aria-current={isBlogActive ? "page" : undefined}
                     className={cn(
-                      "block px-3 py-2.5 rounded-lg transition-colors",
+                      "block px-3 py-2.5 rounded-md transition-colors",
                       isBlogActive
                         ? "text-ink font-medium bg-wash"
                         : "text-muted hover:text-ink hover:bg-wash",
@@ -186,7 +190,7 @@ const Header = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={closeMenu}
-                    className="block px-3 py-2.5 rounded-lg text-muted hover:text-ink hover:bg-wash transition-colors"
+                    className="block px-3 py-2.5 rounded-md text-muted hover:text-ink hover:bg-wash transition-colors"
                   >
                     Portfolio
                   </a>
@@ -202,7 +206,7 @@ const Header = () => {
                       <Link
                         href={ROUTES.WRITE}
                         onClick={closeMenu}
-                        className="flex items-center gap-2 px-3 py-2.5 text-sm text-accent hover:bg-accent-soft rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-3 py-2.5 text-sm text-accent hover:bg-accent-soft rounded-md transition-colors"
                       >
                         <IconPencil size={18} />
                         글쓰기
@@ -211,7 +215,7 @@ const Header = () => {
                     <Link
                       href={ROUTES.PROFILE}
                       onClick={closeMenu}
-                      className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted hover:text-ink hover:bg-wash rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted hover:text-ink hover:bg-wash rounded-md transition-colors"
                     >
                       <IconUser size={18} />
                       {user?.username}
@@ -222,14 +226,14 @@ const Header = () => {
                     <Link
                       href={ROUTES.LOGIN}
                       onClick={closeMenu}
-                      className="px-4 py-2.5 text-sm text-center text-body border border-line rounded-lg hover:bg-wash transition-colors"
+                      className="px-4 py-2.5 text-sm text-center text-body border border-line rounded-md hover:bg-wash transition-colors"
                     >
                       로그인
                     </Link>
                     <Link
                       href={ROUTES.REGISTER}
                       onClick={closeMenu}
-                      className="px-4 py-2.5 text-sm text-center text-white bg-accent rounded-lg hover:bg-accent-deep transition-colors"
+                      className="px-4 py-2.5 text-sm text-center text-white bg-accent rounded-md hover:bg-accent-deep transition-colors"
                     >
                       회원가입
                     </Link>

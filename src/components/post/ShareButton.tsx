@@ -23,7 +23,7 @@ export default function ShareButton() {
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted hover:text-ink hover:bg-wash transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+      className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted hover:text-ink hover:bg-wash transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
     >
       {copied ? (
         <>

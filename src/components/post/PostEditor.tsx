@@ -321,7 +321,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             {isEditMode && (
               <button
                 onClick={handleDelete}
-                className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm text-danger hover:bg-danger-soft rounded-md transition-colors"
               >
                 삭제하기
               </button>
@@ -330,7 +330,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
@@ -447,7 +447,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                     )}
                     <label
                       htmlFor="imageUpload"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-lg cursor-pointer transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
                     >
                       <IconPhoto size={16} /> 이미지 추가
                     </label>
@@ -480,7 +480,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 <label className="block text-xl font-medium text-body mb-2">
                   미리보기
                 </label>
-                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-lg bg-white overflow-y-auto">
+                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto">
                   {content ? (
                     <PostContent content={content} />
                   ) : (
@@ -502,7 +502,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading
                   ? "저장 중..."

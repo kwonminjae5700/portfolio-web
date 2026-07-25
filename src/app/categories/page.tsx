@@ -137,7 +137,7 @@ export default function CategoriesPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-6">
+            <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm mb-6">
               {error}
             </div>
           )}
@@ -153,12 +153,12 @@ export default function CategoriesPage() {
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="카테고리 이름"
-                className="flex-1 px-4 py-2 border border-line rounded-lg text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
+                className="flex-1 px-4 py-2 border border-line rounded-md text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
               />
               <button
                 type="submit"
                 disabled={isAdding || !newCategoryName.trim()}
-                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="px-4 py-2 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 <IconPlus size={18} />
                 {isAdding ? "추가 중..." : "추가"}
@@ -183,7 +183,7 @@ export default function CategoriesPage() {
                 {categories.map((category) => (
                   <div
                     key={category.id}
-                    className="flex items-center justify-between p-4 bg-wash rounded-lg"
+                    className="flex items-center justify-between p-4 bg-wash rounded-md"
                   >
                     {editingId === category.id ? (
                       /* 수정 모드 */
@@ -192,12 +192,12 @@ export default function CategoriesPage() {
                           type="text"
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
-                          className="flex-1 px-3 py-2 border border-line rounded-lg text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
+                          className="flex-1 px-3 py-2 border border-line rounded-md text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition"
                           autoFocus
                         />
                         <button
                           onClick={() => handleUpdateCategory(category.id)}
-                          className="px-3 py-2 bg-accent text-white rounded-lg hover:bg-accent-deep transition text-sm"
+                          className="px-3 py-2 bg-accent text-white rounded-md hover:bg-accent-deep transition text-sm"
                         >
                           저장
                         </button>
@@ -229,7 +229,7 @@ export default function CategoriesPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(category.id)}
-                            className="p-2 text-faint hover:text-red-500 transition"
+                            className="p-2 text-faint hover:text-danger transition"
                             title="삭제"
                           >
                             <IconTrash size={18} />

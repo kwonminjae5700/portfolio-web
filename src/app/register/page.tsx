@@ -73,7 +73,7 @@ function CodeInput({
           onPaste={handlePaste}
           disabled={disabled}
           autoComplete="one-time-code"
-          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold text-ink border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed"
+          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold text-ink border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed"
         />
       ))}
     </div>
@@ -174,7 +174,7 @@ export default function RegisterPage() {
                 htmlFor="email"
                 className="block text-sm font-medium text-body mb-1"
               >
-                이메일 <span className="text-red-500">*</span>
+                이메일 <span className="text-danger">*</span>
               </label>
               <div className="relative">
                 <input
@@ -186,11 +186,11 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isCodeSent || isEmailVerified}
-                  className={`w-full px-4 py-3 border text-ink placeholder:text-faint rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed ${
+                  className={`w-full px-4 py-3 border text-ink placeholder:text-faint rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed ${
                     emailError
-                      ? "border-red-500"
+                      ? "border-danger"
                       : isEmailVerified
-                        ? "border-green-500"
+                        ? "border-accent"
                         : "border-line"
                   }`}
                   placeholder="이메일을 입력하세요"
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                 {isEmailVerified && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg
-                      className="w-5 h-5 text-green-500"
+                      className="w-5 h-5 text-accent"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -212,10 +212,10 @@ export default function RegisterPage() {
                 )}
               </div>
               {emailError && (
-                <p className="mt-1 text-sm text-red-500">{emailError}</p>
+                <p className="mt-1 text-sm text-danger">{emailError}</p>
               )}
               {isEmailVerified && (
-                <p className="mt-1 text-sm text-green-600">인증 완료</p>
+                <p className="mt-1 text-sm text-accent-deep">인증 완료</p>
               )}
             </div>
 
@@ -225,7 +225,7 @@ export default function RegisterPage() {
                 type="button"
                 onClick={sendVerificationCode}
                 disabled={!isEmailValid || isCodeSending}
-                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCodeSending ? (
                   <span className="flex items-center gap-2">
@@ -240,7 +240,7 @@ export default function RegisterPage() {
 
             {/* 인증 코드 입력 섹션 */}
             {isCodeSent && !isEmailVerified && (
-              <div className="space-y-4 bg-wash p-4 rounded-lg border border-line">
+              <div className="space-y-4 bg-wash p-4 rounded-md border border-line">
                 <div className="text-center">
                   <p className="text-sm text-muted">
                     인증 코드를 이메일로 전송했습니다.
@@ -249,7 +249,7 @@ export default function RegisterPage() {
                     (유효시간:{" "}
                     <span
                       className={`font-mono font-semibold ${
-                        timeRemaining < 60 ? "text-red-500" : "text-accent"
+                        timeRemaining < 60 ? "text-danger" : "text-accent"
                       }`}
                     >
                       {formatTime(timeRemaining)}
@@ -260,7 +260,7 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-body mb-2 text-center">
-                    인증 코드 <span className="text-red-500">*</span>
+                    인증 코드 <span className="text-danger">*</span>
                   </label>
                   <CodeInput
                     code={verificationCode}
@@ -268,7 +268,7 @@ export default function RegisterPage() {
                     disabled={isTimerExpired || isCodeVerifying}
                   />
                   {codeError && (
-                    <p className="mt-2 text-sm text-red-500 text-center">
+                    <p className="mt-2 text-sm text-danger text-center">
                       {codeError}
                     </p>
                   )}
@@ -280,7 +280,7 @@ export default function RegisterPage() {
                   disabled={
                     !isCodeComplete || isTimerExpired || isCodeVerifying
                   }
-                  className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCodeVerifying ? (
                     <span className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                     htmlFor="username"
                     className="block text-sm font-medium text-body mb-1"
                   >
-                    사용자 이름 <span className="text-red-500">*</span>
+                    사용자 이름 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="username"
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                     htmlFor="password"
                     className="block text-sm font-medium text-body mb-1"
                   >
-                    비밀번호 <span className="text-red-500">*</span>
+                    비밀번호 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="password"
@@ -365,7 +365,7 @@ export default function RegisterPage() {
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium text-body mb-1"
                   >
-                    비밀번호 확인 <span className="text-red-500">*</span>
+                    비밀번호 확인 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="confirmPassword"
@@ -387,7 +387,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">

@@ -14,14 +14,22 @@
   --color-line: #e7e9ed;
   --color-wash: #f6f7f9;
 
-  /* 브랜드 */
-  --color-accent: #3f35ff;
-  --color-accent-deep: #2e26d1;
-  --color-accent-soft: #eeedfc;
+  /* 브랜드 — 파인/암실 그린 (여행 사진 세계에서 고른 색) */
+  --color-accent: #2f6b4f;
+  --color-accent-deep: #245640;
+  --color-accent-soft: #e8f0ec;
 
   /* 코드 블록 크롬 */
   --color-code-chrome: #1e2128;
   --color-code-bg: #16181d;
+  --color-code-fg: #d6dae0; /* 다크 위 본문 오프화이트 */
+  --color-code-muted: #979eaa; /* 다크 위 라벨/버튼 보조 */
+  --color-accent-on-dark: #6db08d; /* 다크 위 파인 악센트 (복사됨 등) */
+
+  /* 상태 — danger (파인과 어울리는 벽돌 레드) */
+  --color-danger: #bb3a2a;
+  --color-danger-soft: #fbeae7;
+  --color-danger-line: #f0cdc6;
 }
 
 * {

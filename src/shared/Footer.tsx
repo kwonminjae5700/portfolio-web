@@ -17,7 +17,11 @@ export default function Footer() {
       >
         <div className="flex flex-col gap-2">
           <div className="text-lg font-black tracking-tight text-ink">
-            Kwon<span className="text-accent">5700</span>
+            Kwon5700
+            <span
+              aria-hidden="true"
+              className="ml-1 inline-block h-1.5 w-1.5 rounded-[1.5px] bg-accent align-baseline"
+            />
           </div>
           <p className="text-sm text-muted">권민재의 개발 기록</p>
           <p className="text-xs text-faint mt-2">

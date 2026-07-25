@@ -40,7 +40,7 @@ export default function CommentForm({ onSubmit }: CommentFormProps) {
 
   if (!isLoggedIn) {
     return (
-      <div className="bg-wash rounded-lg p-5 text-center">
+      <div className="bg-wash rounded-md p-5 text-center">
         <p className="text-sm text-muted">
           댓글을 작성하려면{" "}
           <Link
@@ -61,18 +61,18 @@ export default function CommentForm({ onSubmit }: CommentFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder={`${user?.username}님, 댓글을 남겨보세요`}
-        className="w-full px-4 py-3 text-sm border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none placeholder:text-faint"
+        className="w-full px-4 py-3 text-sm border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent resize-none placeholder:text-faint"
         rows={3}
         disabled={isSubmitting}
       />
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-danger text-sm">{error}</p>}
 
       <div className="flex justify-end">
         <button
           type="submit"
           disabled={isSubmitting || !content.trim()}
-          className="px-4 py-2 text-sm bg-accent text-white rounded-lg hover:bg-accent-deep disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
+          className="px-4 py-2 text-sm bg-accent text-white rounded-md hover:bg-accent-deep disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
         >
           {isSubmitting ? "작성 중..." : "댓글 작성"}
         </button>
