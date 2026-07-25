@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { darkroom } from "./codeTheme";
 import { IconCopy, IconCheck } from "@tabler/icons-react";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
@@ -27,17 +27,17 @@ function CodeBlock({
     <div className="my-6 rounded-lg overflow-hidden -mx-4 md:mx-0">
       {/* 헤더 바 */}
       <div className="flex items-center justify-between px-4 py-2 bg-code-chrome">
-        <span className="font-mono text-[11px] uppercase tracking-wider text-gray-400">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-code-muted">
           {language}
         </span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+          className="flex items-center gap-1.5 text-xs text-code-muted hover:text-code-fg transition-colors px-2 py-1 rounded hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
         >
           {copied ? (
             <>
-              <IconCheck size={14} className="text-green-400" />
-              <span className="text-green-400">복사됨</span>
+              <IconCheck size={14} className="text-accent-on-dark" />
+              <span className="text-accent-on-dark">복사됨</span>
             </>
           ) : (
             <>
@@ -52,7 +52,7 @@ function CodeBlock({
       <div className="bg-code-bg">
         <SyntaxHighlighter
           language={language}
-          style={oneDark}
+          style={darkroom}
           showLineNumbers
           lineNumberStyle={{
             minWidth: "2.5em",
