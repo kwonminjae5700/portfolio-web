@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { API_BASE_URL, CONTAINER, ROUTES } from "@/lib/constants";
+import { API_BASE_URL, CONTAINER, READING_COLUMN, ROUTES } from "@/lib/constants";
 import { cn, estimateReadingTime, formatDate } from "@/lib/utils";
 import { extractToc } from "@/lib/toc";
 import { getAdjacentArticles } from "@/lib/articles";
@@ -143,7 +143,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <main className="min-h-screen bg-white">
         <div className={cn(CONTAINER, "py-10 md:py-14")}>
           <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:gap-14">
-            <article className="max-w-[46rem] mx-auto min-w-0 w-full">
+            <article className={READING_COLUMN}>
               <header className="mb-10">
                 {article.categories && article.categories.length > 0 && (
                   <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1">

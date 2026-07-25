@@ -1,11 +1,11 @@
-import { CONTAINER } from "@/lib/constants";
+import { CONTAINER, READING_COLUMN } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export default function PostLoading() {
   return (
     <main className="min-h-screen bg-white">
       <div className={cn(CONTAINER, "py-10 md:py-14")}>
-        <div className="max-w-[46rem] mx-auto animate-pulse">
+        <div className={cn(READING_COLUMN, "animate-pulse")}>
           {/* 카테고리 칩 */}
           <div className="flex gap-2">
             <div className="h-4 bg-wash rounded w-16" />

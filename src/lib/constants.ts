@@ -24,6 +24,33 @@ export const ROUTES = {
 // 모든 페이지가 공유하는 콘텐츠 컨테이너
 export const CONTAINER = "max-w-6xl mx-auto px-5 sm:px-8 lg:px-10";
 
+/**
+ * 글 본문이 실제로 읽히는 컬럼 폭 (46rem = 736px).
+ * 상세 페이지 <article>, 로딩 스켈레톤, 에디터 미리보기가 모두 이걸 쓴다.
+ * 셋이 어긋나면 미리보기에서 본 줄바꿈이 발행 후 달라진다.
+ */
+export const READING_COLUMN = "max-w-[46rem] mx-auto min-w-0 w-full";
+
+/**
+ * 에디터 한 판(작성창 / 미리보기)의 박스 폭.
+ * 본문 736 + px-4 좌우 32 + border 좌우 2 + 스크롤바 8 = 778.
+ * (globals.css가 ::-webkit-scrollbar에 width를 지정해 자리를 차지하는 스크롤바를 쓴다)
+ */
+export const EDITOR_PANE = "w-full max-w-[778px] mx-auto min-w-0";
+
+/**
+ * 에디터 컨테이너 — 두 판이 나란히 들어갈 때만 넓어진다.
+ * 상세 페이지처럼 감싸는 카드 없이 컨테이너 패딩만 쓴다.
+ *   1단: 778 + px-10 80 = 858
+ *   2단: 778*2 + gap-6 24 = 1580 → + px-10 80 = 1660
+ * 필요 뷰포트 = 1660 + 스크롤바 게터 8 = 1668 → 여유를 두고 1672에서 전환.
+ * (MacBook 16" 기본 해상도가 1728px이라 그 아래여야 한다)
+ *
+ * 이 수치들은 EDITOR_PANE, 그리드 gap과 물려 있다. 하나 바꾸면 전부 다시 계산할 것.
+ */
+export const EDITOR_CONTAINER =
+  "mx-auto px-5 sm:px-8 lg:px-10 max-w-[858px] min-[1672px]:max-w-[1660px]";
+
 // 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다
 export const SITE_DESCRIPTION = "개발하며 배운 것들을 기록하는 권민재의 블로그.";
 

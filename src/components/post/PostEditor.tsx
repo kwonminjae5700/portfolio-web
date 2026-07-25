@@ -10,6 +10,7 @@ import PostContent from "@/components/post/PostContent";
 import { IconPhoto } from "@tabler/icons-react";
 import { LoadingSpinner } from "@/components/ui";
 import { inputBase } from "@/components/ui/buttonStyles";
+import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
 
 interface PostEditorProps {
   mode: "create" | "edit";
@@ -312,175 +313,185 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
   return (
     <main className="bg-white pt-10 pb-12">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
-        <div className="bg-white border border-line rounded-xl p-4 sm:p-6 md:p-8">
-          <div className="flex justify-between items-center mb-6 md:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-ink">
-              {isEditMode ? "글 수정" : "새 글 작성"}
-            </h1>
-            {isEditMode && (
-              <button
-                onClick={handleDelete}
-                className="px-3 py-1.5 text-sm text-danger hover:bg-danger-soft rounded-md transition-colors"
-              >
-                삭제하기
-              </button>
+      <div className={EDITOR_CONTAINER}>
+        <div className="flex justify-between items-center mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-ink">
+            {isEditMode ? "글 수정" : "새 글 작성"}
+          </h1>
+          {isEditMode && (
+            <button
+              onClick={handleDelete}
+              className="px-3 py-1.5 text-sm text-danger hover:bg-danger-soft rounded-md transition-colors"
+            >
+              삭제하기
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="max-w-[778px]">
+            <label
+              htmlFor="title"
+              className="block text-xl font-medium text-body mb-2"
+            >
+              제목
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputBase}
+              placeholder="제목을 입력하세요"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xl font-medium text-body mb-2">
+              카테고리
+            </label>
+            <div className="flex flex-wrap gap-2 items-center">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => handleCategoryToggle(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm transition ${
+                    selectedCategories.includes(category.id)
+                      ? "bg-accent text-white"
+                      : "bg-wash text-muted hover:bg-accent-soft hover:text-accent-deep"
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+
+              {showCategoryInput ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateCategory();
+                      } else if (e.key === "Escape") {
+                        setShowCategoryInput(false);
+                        setNewCategoryName("");
+                      }
+                    }}
+                    placeholder="카테고리 이름"
+                    className="px-3 py-1.5 text-sm border border-line rounded-full text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent"
+                    autoFocus
+                    disabled={isCreatingCategory}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateCategory}
+                    disabled={isCreatingCategory || !newCategoryName.trim()}
+                    className="px-3 py-1.5 bg-accent text-white text-sm rounded-full hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingCategory ? "생성 중..." : "추가"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCategoryInput(false);
+                      setNewCategoryName("");
+                    }}
+                    className="px-3 py-1.5 text-muted text-sm hover:text-ink transition"
+                  >
+                    취소
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryInput(true)}
+                  className="px-4 py-2 rounded-full text-sm border-2 border-dashed border-line text-muted hover:border-accent hover:text-accent transition"
+                >
+                  + 새 카테고리
+                </button>
+              )}
+            </div>
+            {categories.length === 0 && !showCategoryInput && (
+              <p className="text-sm text-muted mt-2">
+                아직 카테고리가 없습니다. 위 버튼으로 추가할 수 있습니다.
+              </p>
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm">
-                {error}
+          {/*
+            에디터 & 미리보기 영역.
+            두 판이 각각 778px(본문 736px)로 들어갈 폭이 확보되는 1672px부터만
+            좌우 2단이 되고, 그 아래에서는 세로로 쌓아 본문 폭을 지킨다.
+          */}
+          <div className="grid grid-cols-1 gap-6 justify-center min-[1672px]:grid-cols-[778px_778px]">
+            {/* 에디터 */}
+            <div className={EDITOR_PANE}>
+              <div className="flex justify-between items-center mb-2">
+                <label
+                  htmlFor="content"
+                  className="block text-xl font-medium text-body"
+                >
+                  내용 (Markdown 지원)
+                </label>
+                <div className="flex items-center gap-2">
+                  {uploadingImages.length > 0 && (
+                    <span className="text-sm text-accent">
+                      업로드 중... ({uploadingImages.length})
+                    </span>
+                  )}
+                  <label
+                    htmlFor="imageUpload"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
+                  >
+                    <IconPhoto size={16} /> 이미지 추가
+                  </label>
+                  <input
+                    id="imageUpload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
               </div>
-            )}
-
-            <div>
-              <label
-                htmlFor="title"
-                className="block text-xl font-medium text-body mb-2"
-              >
-                제목
-              </label>
-              <input
-                id="title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={inputBase}
-                placeholder="제목을 입력하세요"
+              <textarea
+                id="content"
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onPaste={handlePaste}
+                rows={25}
+                className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none [scrollbar-gutter:stable]`}
+                placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
               />
             </div>
 
-            <div>
+            {/* 미리보기 */}
+            <div className={EDITOR_PANE}>
               <label className="block text-xl font-medium text-body mb-2">
-                카테고리
+                미리보기
               </label>
-              <div className="flex flex-wrap gap-2 items-center">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => handleCategoryToggle(category.id)}
-                    className={`px-4 py-2 rounded-full text-sm transition ${
-                      selectedCategories.includes(category.id)
-                        ? "bg-accent text-white"
-                        : "bg-wash text-muted hover:bg-accent-soft hover:text-accent-deep"
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-
-                {showCategoryInput ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCreateCategory();
-                        } else if (e.key === "Escape") {
-                          setShowCategoryInput(false);
-                          setNewCategoryName("");
-                        }
-                      }}
-                      placeholder="카테고리 이름"
-                      className="px-3 py-1.5 text-sm border border-line rounded-full text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent"
-                      autoFocus
-                      disabled={isCreatingCategory}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleCreateCategory}
-                      disabled={isCreatingCategory || !newCategoryName.trim()}
-                      className="px-3 py-1.5 bg-accent text-white text-sm rounded-full hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isCreatingCategory ? "생성 중..." : "추가"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowCategoryInput(false);
-                        setNewCategoryName("");
-                      }}
-                      className="px-3 py-1.5 text-muted text-sm hover:text-ink transition"
-                    >
-                      취소
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowCategoryInput(true)}
-                    className="px-4 py-2 rounded-full text-sm border-2 border-dashed border-line text-muted hover:border-accent hover:text-accent transition"
-                  >
-                    + 새 카테고리
-                  </button>
-                )}
-              </div>
-              {categories.length === 0 && !showCategoryInput && (
-                <p className="text-sm text-muted mt-2">
-                  아직 카테고리가 없습니다. 위 버튼으로 추가할 수 있습니다.
-                </p>
-              )}
-            </div>
-
-            {/* 에디터 & 미리보기 영역 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              {/* 에디터 */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    htmlFor="content"
-                    className="block text-xl font-medium text-body"
-                  >
-                    내용 (Markdown 지원)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {uploadingImages.length > 0 && (
-                      <span className="text-sm text-accent">
-                        업로드 중... ({uploadingImages.length})
-                      </span>
-                    )}
-                    <label
-                      htmlFor="imageUpload"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
-                    >
-                      <IconPhoto size={16} /> 이미지 추가
-                    </label>
-                    <input
-                      id="imageUpload"
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                      multiple
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                  </div>
-                </div>
-                <textarea
-                  id="content"
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onPaste={handlePaste}
-                  rows={25}
-                  className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none`}
-                  placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
-                />
-              </div>
-
-              {/* 미리보기 */}
-              <div>
-                <label className="block text-xl font-medium text-body mb-2">
-                  미리보기
-                </label>
-                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto">
+              {/*
+                px-4는 유지해야 한다 — 코드 블록이 모바일에서 -mx-4로 삐져나오는데
+                (markdownComponents.tsx의 CodeBlock) overflow-y-auto가 overflow-x도
+                auto로 만들어서, 패딩이 없으면 미리보기 안에 가로 스크롤이 생긴다.
+                안쪽 READING_COLUMN이 상세 페이지의 <article>과 같은 역할.
+              */}
+              <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto">
+                <div className={READING_COLUMN}>
                   {content ? (
                     <PostContent content={content} />
                   ) : (
@@ -491,28 +502,28 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end gap-4 pt-4">
-              <Link
-                href={cancelHref}
-                className="px-6 py-3 text-muted hover:text-ink transition"
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-6 py-3 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading
-                  ? "저장 중..."
-                  : isEditMode
-                    ? "수정하기"
-                    : "작성하기"}
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <Link
+              href={cancelHref}
+              className="px-6 py-3 text-muted hover:text-ink transition"
+            >
+              취소
+            </Link>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-6 py-3 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading
+                ? "저장 중..."
+                : isEditMode
+                  ? "수정하기"
+                  : "작성하기"}
+            </button>
+          </div>
+        </form>
       </div>
     </main>
   );
