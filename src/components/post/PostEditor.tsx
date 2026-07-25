@@ -17,6 +17,93 @@ interface PostEditorProps {
   articleId?: number;
 }
 
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+/**
+ * 외부 앱(노션 등)에서 붙여넣을 때 남는 이미지 찌꺼기 줄.
+ * 원본에 이미지 블롭이 없고 text/plain 폴백만 있으면 브라우저 기본 붙여넣기가
+ * "!파일명.png" 같은 줄을 그대로 꽂는데, 마크다운으로는 아무 의미가 없어 본문에
+ * 글자로 남는다.
+ *
+ * 문자 클래스가 [ ] ( ) 를 금지하므로 ![캡션](a.png) 이나 [링크](a.png) 는
+ * 구조적으로 매칭되지 않는다. 120자 상한으로 긴 산문도 걸러진다.
+ * "!" 없는 image.png 줄은 정상 문장일 수 있어 건드리지 않는다.
+ */
+const IMAGE_RESIDUE_LINE =
+  /^[ \t]*!(?!\[)[^\n[\]()]{0,120}\.(?:png|jpe?g|gif|webp|svg|avif|bmp|heic|heif)[ \t]*$/i;
+
+function stripImageResidueLines(text: string): string {
+  if (!text.includes("!")) return text;
+  return text
+    .split("\n")
+    .filter((line) => !IMAGE_RESIDUE_LINE.test(line))
+    .join("\n");
+}
+
+/** 파일명을 마크다운 alt(=캡션)로 안전하게 쓰도록 이스케이프 */
+function escapeAltText(name: string): string {
+  return name.replace(/[\r\n]+/g, " ").replace(/([\\[\]])/g, "\\$1");
+}
+
+/**
+ * DataTransfer에서 이미지 파일만 모은다.
+ * DataTransferItem은 이벤트 핸들러가 끝나면 무효화되므로 반드시 동기로 호출할 것.
+ */
+function collectImageFiles(dt: DataTransfer | null): File[] {
+  if (!dt) return [];
+  const fromFiles = Array.from(dt.files ?? []).filter((f) =>
+    f.type.startsWith("image/"),
+  );
+  // 합집합이 아니라 폴백이다 — 둘 다 채우면 같은 이미지를 두 번 올린다.
+  if (fromFiles.length > 0) return fromFiles;
+
+  const fromItems: File[] = [];
+  for (const item of Array.from(dt.items ?? [])) {
+    if (item.kind !== "file") continue;
+    const file = item.getAsFile();
+    if (
+      file &&
+      (file.type.startsWith("image/") || item.type.startsWith("image/"))
+    ) {
+      fromItems.push(file);
+    }
+  }
+  return fromItems;
+}
+
+/**
+ * index 자리에 스니펫을 빈 줄로 감싼 블록으로 끼워 넣는다.
+ * 앵커가 조금 어긋나도 단어 중간을 가르지 않게 하려는 것.
+ */
+function insertAsBlock(prev: string, index: number, snippet: string) {
+  const at = Math.max(0, Math.min(index, prev.length));
+  const before = prev.slice(0, at);
+  const after = prev.slice(at);
+  const lead =
+    before === "" || before.endsWith("\n\n")
+      ? ""
+      : before.endsWith("\n")
+        ? "\n"
+        : "\n\n";
+  const tail =
+    after === ""
+      ? "\n"
+      : after.startsWith("\n\n")
+        ? ""
+        : after.startsWith("\n")
+          ? "\n"
+          : "\n\n";
+  const inserted = `${lead}${snippet}${tail}`;
+  return { next: before + inserted + after, caret: at + inserted.length };
+}
+
 export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const router = useRouter();
   const { user, isLoggedIn, isLoading: authLoading, canWrite } = useAuth();
@@ -31,8 +118,19 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [showCategoryInput, setShowCategoryInput] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState<string[]>([]);
+  const [uploadingCount, setUploadingCount] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  /**
+   * 마지막으로 알고 있는 캐럿 위치. null이면 문서 끝에 붙인다.
+   * await 이후의 DOM에서 읽으면 이미 포커스가 옮겨간 뒤라 0이 나오므로,
+   * 사용자 이벤트 시점에 동기로 기록해 둔다.
+   */
+  const caretRef = useRef<number | null>(null);
+
+  const rememberCaret = () => {
+    const textarea = textareaRef.current;
+    if (textarea) caretRef.current = textarea.selectionStart;
+  };
 
   const isEditMode = mode === "edit";
 
@@ -187,84 +285,106 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
     }
   };
 
-  // 이미지 업로드 핸들러
-  const uploadImage = async (file: File) => {
-    // 파일 크기 체크 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError("파일 크기는 10MB를 초과할 수 없습니다.");
-      return;
-    }
-
-    // 파일 형식 체크
-    const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      setError(
-        "허용되지 않는 파일 형식입니다. (jpeg, jpg, png, gif, webp만 가능)",
+  /**
+   * 캐럿 위치에 마크다운을 끼워 넣는다.
+   * setContent를 함수형으로 쓰는 게 핵심 — 업로드가 여러 개 동시에 끝나거나
+   * 업로드 중 사용자가 타이핑해도 스냅샷을 덮어쓰지 않는다.
+   */
+  const insertAtCaret = (snippet: string) => {
+    setContent((prev) => {
+      const { next, caret } = insertAsBlock(
+        prev,
+        caretRef.current ?? prev.length,
+        snippet,
       );
-      return;
-    }
+      // 캐럿을 전진시켜야 다음 삽입이 이 뒤로 이어진다.
+      caretRef.current = caret;
+      return next;
+    });
 
-    const uploadId = `${Date.now()}-${file.name}`;
-    setUploadingImages((prev) => [...prev, uploadId]);
-    setError("");
-
-    try {
-      const result = await api.uploadImage(file);
-
-      // 커서 위치에 이미지 마크다운 삽입
+    requestAnimationFrame(() => {
       const textarea = textareaRef.current;
-      if (textarea) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const imageMarkdown = `![${file.name}](${result.url})`;
-        const newContent =
-          content.substring(0, start) + imageMarkdown + content.substring(end);
-
-        setContent(newContent);
-
-        // 커서 위치를 이미지 마크다운 뒤로 이동
-        setTimeout(() => {
-          textarea.focus();
-          const newPosition = start + imageMarkdown.length;
-          textarea.setSelectionRange(newPosition, newPosition);
-        }, 0);
+      const caret = caretRef.current;
+      if (!textarea || caret === null) return;
+      // 제목 같은 다른 입력창에 타이핑 중이면 포커스를 뺏지 않는다.
+      const active = document.activeElement;
+      if (
+        active !== textarea &&
+        (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA")
+      ) {
+        return;
       }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "이미지 업로드에 실패했습니다.",
+      textarea.focus();
+      textarea.setSelectionRange(caret, caret);
+    });
+  };
+
+  /**
+   * 한 번의 사용자 동작으로 들어온 이미지들을 함께 업로드한다.
+   * 병렬로 올리되 삽입은 파일 순서대로 한 번에 하므로, 완료 순서에 따라
+   * 결과가 달라지지 않고 한 장이 실패해도 나머지는 살아남는다.
+   */
+  const uploadImages = async (files: File[]) => {
+    const valid: File[] = [];
+    const rejected: string[] = [];
+
+    for (const file of files) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        rejected.push(`${file.name}: 10MB 초과`);
+      } else if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        rejected.push(`${file.name}: 지원하지 않는 형식`);
+      } else {
+        valid.push(file);
+      }
+    }
+
+    setError(rejected.length > 0 ? rejected.join(" / ") : "");
+    if (valid.length === 0) return;
+
+    setUploadingCount((n) => n + valid.length);
+    try {
+      const results = await Promise.allSettled(
+        valid.map((file) => api.uploadImage(file)),
       );
+
+      const snippets: string[] = [];
+      const failed: string[] = [];
+      results.forEach((result, i) => {
+        if (result.status === "fulfilled") {
+          snippets.push(
+            `![${escapeAltText(valid[i].name)}](${result.value.url})`,
+          );
+        } else {
+          failed.push(valid[i].name);
+        }
+      });
+
+      if (snippets.length > 0) insertAtCaret(snippets.join("\n\n"));
+      if (failed.length > 0) {
+        setError(`이미지 업로드에 실패했습니다: ${failed.join(", ")}`);
+      }
     } finally {
-      setUploadingImages((prev) => prev.filter((id) => id !== uploadId));
+      setUploadingCount((n) => Math.max(0, n - valid.length));
     }
   };
 
   // 파일 선택 핸들러
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      Array.from(files).forEach((file) => uploadImage(file));
-    }
+    const files = Array.from(e.target.files ?? []);
     // input 초기화 (같은 파일 재선택 가능하도록)
     e.target.value = "";
+    if (files.length > 0) void uploadImages(files);
   };
 
   // 드래그 앤 드롭 핸들러
   const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    const files = collectImageFiles(e.dataTransfer);
+    // 이미지가 아니면 브라우저 기본 동작(텍스트 드롭)을 그대로 둔다.
+    if (files.length === 0) return;
+    // 드래그 중 브라우저가 옮겨 둔 캐럿이 곧 드롭 지점이다.
+    caretRef.current = e.currentTarget.selectionStart;
     e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files) {
-      Array.from(files).forEach((file) => {
-        if (file.type.startsWith("image/")) {
-          uploadImage(file);
-        }
-      });
-    }
+    void uploadImages(files);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLTextAreaElement>) => {
@@ -273,17 +393,40 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
   // 붙여넣기 핸들러
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith("image/")) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) {
-          uploadImage(file);
-        }
-      }
+    const textarea = e.currentTarget;
+    caretRef.current = textarea.selectionStart;
+
+    const files = collectImageFiles(e.clipboardData);
+    if (files.length > 0) {
+      // 파일명 텍스트가 함께 꽂히는 경로를 원천 차단한다.
+      e.preventDefault();
+      void uploadImages(files);
+      return;
     }
+
+    // 이미지 블롭이 없는 붙여넣기 — 텍스트에 섞인 이미지 찌꺼기만 걷어낸다.
+    const text = e.clipboardData.getData("text/plain");
+    if (!text) return;
+    const cleaned = stripImageResidueLines(text);
+    // 손댈 게 없으면 기본 동작을 그대로 둬서 네이티브 undo를 보존한다.
+    if (cleaned === text) return;
+
+    e.preventDefault();
+    textarea.focus();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    // execCommand는 deprecated지만 undo 스택을 유지하는 유일한 방법이고,
+    // input 이벤트를 발생시켜 onChange가 content를 맞춰준다.
+    if (document.execCommand("insertText", false, cleaned)) {
+      caretRef.current = textarea.selectionStart;
+      return;
+    }
+    setContent((prev) => prev.slice(0, start) + cleaned + prev.slice(end));
+    caretRef.current = start + cleaned.length;
+    requestAnimationFrame(() => {
+      const caret = caretRef.current ?? 0;
+      textarea.setSelectionRange(caret, caret);
+    });
   };
 
   if (authLoading || isLoadingArticle) {
@@ -444,13 +587,15 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   내용 (Markdown 지원)
                 </label>
                 <div className="flex items-center gap-2">
-                  {uploadingImages.length > 0 && (
+                  {uploadingCount > 0 && (
                     <span className="text-sm text-accent">
-                      업로드 중... ({uploadingImages.length})
+                      업로드 중... ({uploadingCount})
                     </span>
                   )}
+                  {/* mousedown이 blur보다 먼저 오므로, 포커스를 잃기 전에 캐럿을 기록한다 */}
                   <label
                     htmlFor="imageUpload"
+                    onMouseDown={rememberCaret}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
                   >
                     <IconPhoto size={16} /> 이미지 추가
@@ -469,7 +614,14 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 id="content"
                 ref={textareaRef}
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  caretRef.current = e.target.selectionStart;
+                }}
+                onSelect={rememberCaret}
+                onKeyUp={rememberCaret}
+                onClick={rememberCaret}
+                onBlur={rememberCaret}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onPaste={handlePaste}
