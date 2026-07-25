@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { truncateText } from "@/lib/utils";
+import { estimateReadingTime, formatDate, truncateText } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import type { Article, ArticleListResponse } from "@/types/api";
 import ArticleListClient from "./ArticleListClient";
@@ -13,41 +13,56 @@ interface ArticleCardProps {
 
 // 서버 컴포넌트 - SEO를 위해 서버에서 렌더링
 export const ArticleCard = ({ article }: ArticleCardProps) => {
-  // 서버에서 무작위 이미지 선택 (1~16)
-  const randomImageNumber = Math.floor(Math.random() * 16) + 1;
-  const imageSrc = `/img/${randomImageNumber}.png`;
+  // 글 ID 기반 고정 썸네일 (1~16 여행 사진)
+  const imageSrc = `/img/${(article.id % 16) + 1}.png`;
 
   return (
-    <Link href={ROUTES.POST(article.id)}>
-      <div className="w-full flex gap-4 pb-8 border-b border-gray-300 -m-2">
-        <div className="flex flex-col gap-1 h-fit flex-1 min-w-0">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-normal mb-2 text-title hover:text-black">
-            {article.title}
-          </h2>
-          <p className="line-clamp-2 text-content hover:text-black text-sm sm:text-base">
-            {truncateText(article.content, CONTENT_PREVIEW_LENGTH)}
-          </p>
-          <div className="flex items-center gap-4 mt-3 flex-wrap">
-            {article.categories && article.categories.length > 0 && (
-              <div className="space-x-2 text-mainBlue text-sm sm:text-base">
-                {article.categories.map((cat) => (
-                  <span key={cat.id}># {cat.name}</span>
-                ))}
-              </div>
-            )}
+    <article className="article-card group relative flex gap-5 sm:gap-7 py-7 first:pt-0 border-b border-line">
+      <div className="flex-1 min-w-0 flex flex-col">
+        {article.categories && article.categories.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1">
+            {article.categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={ROUTES.CATEGORY(cat.id)}
+                className="relative z-10 text-[13px] font-medium text-accent hover:text-accent-deep transition-colors"
+              >
+                # {cat.name}
+              </Link>
+            ))}
           </div>
-        </div>
-        <div className="relative w-[110px] sm:w-[140px] md:w-[180px] min-h-[75px] sm:min-h-[95px] md:min-h-[120px] bg-gray-200 shrink-0 overflow-hidden rounded-sm">
-          <Image
-            src={imageSrc}
-            alt={article.title}
-            fill
-            sizes="(max-width: 640px) 110px, (max-width: 768px) 140px, 180px"
-            className="object-cover"
-          />
+        )}
+        <h2 className="text-lg sm:text-xl font-semibold text-ink leading-snug group-hover:text-accent transition-colors">
+          {/* 오버레이 링크 — 카드 전체(썸네일 포함)를 클릭 영역으로.
+              썸네일 래퍼(position:relative)보다 위에 오도록 z-[1], 칩 링크는 z-10으로 그 위에 */}
+          <Link
+            href={ROUTES.POST(article.id)}
+            className="before:absolute before:inset-0 before:z-[1] focus-visible:outline-none"
+          >
+            {article.title}
+          </Link>
+        </h2>
+        <p className="mt-2 line-clamp-2 text-sm sm:text-[15px] leading-relaxed text-muted">
+          {truncateText(article.content, CONTENT_PREVIEW_LENGTH)}
+        </p>
+        <div className="mt-3 flex items-center gap-2 text-[13px] text-faint">
+          <time dateTime={article.created_at}>
+            {formatDate(article.created_at)}
+          </time>
+          <span aria-hidden="true">·</span>
+          <span>{estimateReadingTime(article.content)}분 분량</span>
         </div>
       </div>
-    </Link>
+      <div className="relative w-[100px] sm:w-[150px] md:w-[180px] aspect-[4/3] self-center shrink-0 overflow-hidden rounded-xl bg-wash">
+        <Image
+          src={imageSrc}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 180px"
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+        />
+      </div>
+    </article>
   );
 };
 
@@ -57,24 +72,20 @@ interface ArticleListProps {
 
 // 서버 컴포넌트 - 초기 데이터를 서버에서 렌더링
 const ArticleList = ({ initialData }: ArticleListProps) => {
-  const { articles, has_more, last_id } = initialData;
+  const { articles, has_more } = initialData;
 
   if (articles.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">아직 작성된 글이 없습니다.</p>
-        <Link
-          href={ROUTES.WRITE}
-          className="inline-block mt-4 text-mainBlue hover:underline"
-        >
-          첫 글을 작성해보세요!
-        </Link>
+      <div className="text-center py-16">
+        <p className="text-muted">아직 작성된 글이 없습니다.</p>
       </div>
     );
   }
 
+  const lastId = articles[articles.length - 1]?.id ?? null;
+
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col">
       {/* 초기 데이터는 서버에서 렌더링 (SEO) */}
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
@@ -82,7 +93,7 @@ const ArticleList = ({ initialData }: ArticleListProps) => {
 
       {/* 무한 스크롤은 클라이언트에서 처리 */}
       <ArticleListClient
-        initialLastId={last_id}
+        initialLastId={lastId}
         initialHasMore={has_more}
         initialArticleIds={articles.map((a) => a.id)}
       />

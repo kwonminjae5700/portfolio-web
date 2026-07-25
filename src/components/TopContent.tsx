@@ -49,26 +49,30 @@ async function getCategories(): Promise<Category[]> {
 }
 
 const TopPostItem = ({ article, index }: TopPostItemProps) => (
-  <Link href={ROUTES.POST(article.id)}>
-    <div className="flex gap-3 items-start py-2">
-      <span className="text-mainBlue font-bold">{index + 1}</span>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-700 truncate hover:text-black">
-          {article.title}
-        </p>
-        <p className="text-xs text-gray-400">
-          조회수 {article.view_count.toLocaleString()}
-        </p>
-      </div>
-    </div>
+  <Link
+    href={ROUTES.POST(article.id)}
+    className="group flex gap-3 items-baseline py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-sm"
+  >
+    <span className="text-accent font-bold text-sm tabular-nums w-4 shrink-0">
+      {index + 1}
+    </span>
+    <span className="flex-1 min-w-0">
+      <span className="block text-sm text-body truncate group-hover:text-ink transition-colors">
+        {article.title}
+      </span>
+      <span className="block text-xs text-faint mt-0.5">
+        조회수 {article.view_count.toLocaleString()}
+      </span>
+    </span>
   </Link>
 );
 
 const CategoryItem = ({ category }: CategoryItemProps) => (
-  <Link href={`/categories?id=${category.id}`}>
-    <div className="w-fit bg-gray-100 rounded-3xl px-5 py-1 text-gray-500 cursor-pointer hover:text-black transition">
-      {category.name}
-    </div>
+  <Link
+    href={ROUTES.CATEGORY(category.id)}
+    className="inline-block rounded-full bg-wash px-3.5 py-1.5 text-[13px] text-muted hover:bg-accent-soft hover:text-accent-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+  >
+    {category.name}
   </Link>
 );
 
@@ -76,20 +80,20 @@ const TopContent = async ({ mode }: TopContentProps) => {
   const articles = mode === "posts" ? await getTopArticles() : [];
   const categories = mode === "categories" ? await getCategories() : [];
 
-  const title = `TOP ${mode === "posts" ? "5" : "CATEGORIES"}`;
+  const title = mode === "posts" ? "인기 글" : "카테고리";
   const isEmpty =
     mode === "posts" ? articles.length === 0 : categories.length === 0;
   const emptyMessage =
     mode === "posts" ? "글이 없습니다." : "카테고리가 없습니다.";
 
   return (
-    <section className="w-full md:w-56 lg:w-64 pb-8 lg:pb-10 border-b border-gray-300">
-      <h2 className="font-bold text-xl mb-4">{title}</h2>
+    <section className="w-full md:w-56 lg:w-64 pb-8 border-b border-line md:last:border-b-0">
+      <h2 className="text-[13px] font-semibold text-faint mb-4">{title}</h2>
 
       {isEmpty ? (
-        <p className="text-sm text-gray-400">{emptyMessage}</p>
+        <p className="text-sm text-faint">{emptyMessage}</p>
       ) : mode === "posts" ? (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-1.5">
           {articles.map((article, index) => (
             <li key={article.id}>
               <TopPostItem article={article} index={index} />
@@ -97,7 +101,7 @@ const TopContent = async ({ mode }: TopContentProps) => {
           ))}
         </ul>
       ) : (
-        <ul className="flex gap-3 flex-wrap">
+        <ul className="flex gap-2 flex-wrap">
           {categories.map((category) => (
             <li key={category.id}>
               <CategoryItem category={category} />

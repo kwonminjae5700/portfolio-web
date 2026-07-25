@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
 import { Providers } from "./providers";
+import { SITE_DESCRIPTION } from "@/lib/constants";
 
 const avenir = localFont({
   src: [
@@ -12,7 +14,7 @@ const avenir = localFont({
     },
     {
       path: "../fonts/Avenir-Book.ttf",
-      weight: "500",
+      weight: "350",
     },
     {
       path: "../fonts/Avenir-Regular.ttf",
@@ -46,17 +48,7 @@ export const metadata: Metadata = {
     template: "%s | Kwon5700's Blog",
   },
   description:
-    "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
-  keywords: [
-    "블로그",
-    "개발",
-    "프로그래밍",
-    "웹 개발",
-    "Next.js",
-    "React",
-    "권민재",
-    "Kwon5700",
-  ],
+    SITE_DESCRIPTION,
   authors: [{ name: "권민재", url: siteUrl }],
   creator: "권민재",
   publisher: "권민재",
@@ -78,10 +70,10 @@ export const metadata: Metadata = {
     siteName: "Kwon5700's Blog",
     title: "Kwon5700's Blog",
     description:
-      "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
+      SITE_DESCRIPTION,
     images: [
       {
-        url: "/bridge.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Kwon5700's Blog",
@@ -92,8 +84,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kwon5700's Blog",
     description:
-      "권민재의 개발 블로그입니다. 웹 개발, 프로그래밍, 기술 관련 글을 공유합니다.",
-    images: ["/bridge.png"],
+      SITE_DESCRIPTION,
+    images: ["/og-image.jpg"],
   },
   alternates: {
     canonical: siteUrl,
@@ -113,7 +105,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={`${avenir.variable} antialiased bg-white text-gray-900`}>
+      <body className={`${avenir.variable} antialiased bg-white text-body`}>
         <Providers>{children}</Providers>
       </body>
     </html>

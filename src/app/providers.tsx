@@ -8,7 +8,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <Header />
-      {children}
+      {/* fixed 헤더(h-18) 높이만큼 전역에서 한 번만 보정 */}
+      <div className="pt-18">{children}</div>
       <Footer />
     </AuthProvider>
   );

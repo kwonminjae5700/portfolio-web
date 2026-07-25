@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useEmailVerification } from "@/hooks/useEmailVerification";
+import { LoadingSpinner, ErrorMessage } from "@/components/ui";
+import { inputBase } from "@/components/ui/buttonStyles";
 
 // 인증 코드 입력 컴포넌트
 function CodeInput({
@@ -71,7 +73,7 @@ function CodeInput({
           onPaste={handlePaste}
           disabled={disabled}
           autoComplete="one-time-code"
-          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold text-ink border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed"
         />
       ))}
     </div>
@@ -147,17 +149,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center bg-white py-12 px-5">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            회원가입
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <h1 className="text-center text-2xl font-bold text-ink">회원가입</h1>
+          <p className="mt-2 text-center text-sm text-muted">
             이미 계정이 있으신가요?{" "}
             <Link
               href="/login"
-              className="font-medium text-mainBlue hover:text-blue-500"
+              className="font-medium text-accent hover:text-accent-deep transition-colors"
             >
               로그인
             </Link>
@@ -165,20 +165,16 @@ export default function RegisterPage() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+          {error && <ErrorMessage message={error} />}
 
           <div className="space-y-4">
             {/* 이메일 입력 섹션 */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-body mb-1"
               >
-                이메일 <span className="text-red-500">*</span>
+                이메일 <span className="text-danger">*</span>
               </label>
               <div className="relative">
                 <input
@@ -190,19 +186,19 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isCodeSent || isEmailVerified}
-                  className={`appearance-none relative block w-full px-4 py-3 border placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                  className={`w-full px-4 py-3 border text-ink placeholder:text-faint rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent transition disabled:bg-wash disabled:cursor-not-allowed ${
                     emailError
-                      ? "border-red-500"
+                      ? "border-danger"
                       : isEmailVerified
-                        ? "border-green-500"
-                        : "border-gray-300"
+                        ? "border-accent"
+                        : "border-line"
                   }`}
                   placeholder="이메일을 입력하세요"
                 />
                 {isEmailVerified && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg
-                      className="w-5 h-5 text-green-500"
+                      className="w-5 h-5 text-accent"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -216,10 +212,10 @@ export default function RegisterPage() {
                 )}
               </div>
               {emailError && (
-                <p className="mt-1 text-sm text-red-500">{emailError}</p>
+                <p className="mt-1 text-sm text-danger">{emailError}</p>
               )}
               {isEmailVerified && (
-                <p className="mt-1 text-sm text-green-600">인증 완료</p>
+                <p className="mt-1 text-sm text-accent-deep">인증 완료</p>
               )}
             </div>
 
@@ -229,29 +225,11 @@ export default function RegisterPage() {
                 type="button"
                 onClick={sendVerificationCode}
                 disabled={!isEmailValid || isCodeSending}
-                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-mainBlue hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainBlue transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCodeSending ? (
                   <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
+                    <LoadingSpinner size="sm" tone="white" />
                     전송 중...
                   </span>
                 ) : (
@@ -262,16 +240,16 @@ export default function RegisterPage() {
 
             {/* 인증 코드 입력 섹션 */}
             {isCodeSent && !isEmailVerified && (
-              <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="space-y-4 bg-wash p-4 rounded-md border border-line">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted">
                     인증 코드를 이메일로 전송했습니다.
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted">
                     (유효시간:{" "}
                     <span
                       className={`font-mono font-semibold ${
-                        timeRemaining < 60 ? "text-red-500" : "text-mainBlue"
+                        timeRemaining < 60 ? "text-danger" : "text-accent"
                       }`}
                     >
                       {formatTime(timeRemaining)}
@@ -281,8 +259,8 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
-                    인증 코드 <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-body mb-2 text-center">
+                    인증 코드 <span className="text-danger">*</span>
                   </label>
                   <CodeInput
                     code={verificationCode}
@@ -290,7 +268,7 @@ export default function RegisterPage() {
                     disabled={isTimerExpired || isCodeVerifying}
                   />
                   {codeError && (
-                    <p className="mt-2 text-sm text-red-500 text-center">
+                    <p className="mt-2 text-sm text-danger text-center">
                       {codeError}
                     </p>
                   )}
@@ -302,29 +280,11 @@ export default function RegisterPage() {
                   disabled={
                     !isCodeComplete || isTimerExpired || isCodeVerifying
                   }
-                  className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-mainBlue hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainBlue transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCodeVerifying ? (
                     <span className="flex items-center gap-2">
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
+                      <LoadingSpinner size="sm" tone="white" />
                       확인 중...
                     </span>
                   ) : (
@@ -333,7 +293,7 @@ export default function RegisterPage() {
                 </button>
 
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted">
                     코드를 받지 못하셨나요?{" "}
                     <button
                       type="button"
@@ -341,14 +301,14 @@ export default function RegisterPage() {
                       disabled={!canResend}
                       className={`font-medium ${
                         canResend
-                          ? "text-mainBlue hover:text-blue-500 cursor-pointer"
-                          : "text-gray-400 cursor-not-allowed"
+                          ? "text-accent hover:text-accent-deep cursor-pointer"
+                          : "text-faint cursor-not-allowed"
                       }`}
                     >
                       재전송
                     </button>
                     {!canResend && resendCooldown > 0 && (
-                      <span className="text-gray-400 ml-1">
+                      <span className="text-faint ml-1">
                         ({resendCooldown}초)
                       </span>
                     )}
@@ -363,9 +323,9 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="username"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-body mb-1"
                   >
-                    사용자 이름 <span className="text-red-500">*</span>
+                    사용자 이름 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="username"
@@ -375,7 +335,7 @@ export default function RegisterPage() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                    className={inputBase}
                     placeholder="사용자 이름을 입력하세요 (최소 3자)"
                   />
                 </div>
@@ -383,9 +343,9 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-body mb-1"
                   >
-                    비밀번호 <span className="text-red-500">*</span>
+                    비밀번호 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="password"
@@ -395,7 +355,7 @@ export default function RegisterPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                    className={inputBase}
                     placeholder="비밀번호를 입력하세요 (최소 6자)"
                   />
                 </div>
@@ -403,9 +363,9 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-body mb-1"
                   >
-                    비밀번호 확인 <span className="text-red-500">*</span>
+                    비밀번호 확인 <span className="text-danger">*</span>
                   </label>
                   <input
                     id="confirmPassword"
@@ -415,7 +375,7 @@ export default function RegisterPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                    className={inputBase}
                     placeholder="비밀번호를 다시 입력하세요"
                   />
                 </div>
@@ -427,29 +387,11 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-mainBlue hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainBlue transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-deep focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
+                  <LoadingSpinner size="sm" tone="white" />
                   가입 중...
                 </span>
               ) : (
@@ -459,10 +401,10 @@ export default function RegisterPage() {
           )}
         </form>
 
-        <div className="text-center flex justify-end">
+        <div className="text-center">
           <Link
             href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 transition"
+            className="text-sm text-muted hover:text-ink transition-colors"
           >
             ← 홈으로 돌아가기
           </Link>

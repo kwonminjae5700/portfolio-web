@@ -7,6 +7,9 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Category, Article } from "@/types/api";
 import PostContent from "@/components/post/PostContent";
+import { IconPhoto } from "@tabler/icons-react";
+import { LoadingSpinner } from "@/components/ui";
+import { inputBase } from "@/components/ui/buttonStyles";
 
 interface PostEditorProps {
   mode: "create" | "edit";
@@ -284,20 +287,20 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
   if (authLoading || isLoadingArticle) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">로딩 중...</div>
+      <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center">
+        <LoadingSpinner size="md" text="로딩 중..." />
       </main>
     );
   }
 
   if (isEditMode && !article) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-ink mb-4">
             글을 찾을 수 없습니다
           </h1>
-          <Link href="/" className="text-mainBlue hover:underline">
+          <Link href="/" className="text-accent hover:underline">
             홈으로 돌아가기
           </Link>
         </div>
@@ -308,17 +311,17 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const cancelHref = isEditMode && articleId ? `/post/${articleId}` : "/";
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-8 md:px-12 lg:px-24 xl:px-48">
-      <div className="max-w-full mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
+    <main className="bg-white pt-10 pb-12">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
+        <div className="bg-white border border-line rounded-xl p-4 sm:p-6 md:p-8">
           <div className="flex justify-between items-center mb-6 md:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-ink">
               {isEditMode ? "글 수정" : "새 글 작성"}
             </h1>
             {isEditMode && (
               <button
                 onClick={handleDelete}
-                className="text-red-500 hover:text-red-700 text-sm transition"
+                className="px-3 py-1.5 text-sm text-danger hover:bg-danger-soft rounded-md transition-colors"
               >
                 삭제하기
               </button>
@@ -327,7 +330,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
@@ -335,7 +338,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             <div>
               <label
                 htmlFor="title"
-                className="block text-xl font-medium text-gray-700 mb-2"
+                className="block text-xl font-medium text-body mb-2"
               >
                 제목
               </label>
@@ -344,13 +347,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition"
+                className={inputBase}
                 placeholder="제목을 입력하세요"
               />
             </div>
 
             <div>
-              <label className="block text-xl font-medium text-gray-700 mb-2">
+              <label className="block text-xl font-medium text-body mb-2">
                 카테고리
               </label>
               <div className="flex flex-wrap gap-2 items-center">
@@ -361,8 +364,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                     onClick={() => handleCategoryToggle(category.id)}
                     className={`px-4 py-2 rounded-full text-sm transition ${
                       selectedCategories.includes(category.id)
-                        ? "bg-mainBlue text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-accent text-white"
+                        : "bg-wash text-muted hover:bg-accent-soft hover:text-accent-deep"
                     }`}
                   >
                     {category.name}
@@ -385,7 +388,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                         }
                       }}
                       placeholder="카테고리 이름"
-                      className="px-3 py-1.5 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent"
+                      className="px-3 py-1.5 text-sm border border-line rounded-full text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-transparent"
                       autoFocus
                       disabled={isCreatingCategory}
                     />
@@ -393,7 +396,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                       type="button"
                       onClick={handleCreateCategory}
                       disabled={isCreatingCategory || !newCategoryName.trim()}
-                      className="px-3 py-1.5 bg-mainBlue text-white text-sm rounded-full hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-accent text-white text-sm rounded-full hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isCreatingCategory ? "생성 중..." : "추가"}
                     </button>
@@ -403,7 +406,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                         setShowCategoryInput(false);
                         setNewCategoryName("");
                       }}
-                      className="px-3 py-1.5 text-gray-500 text-sm hover:text-gray-700 transition"
+                      className="px-3 py-1.5 text-muted text-sm hover:text-ink transition"
                     >
                       취소
                     </button>
@@ -412,15 +415,15 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   <button
                     type="button"
                     onClick={() => setShowCategoryInput(true)}
-                    className="px-4 py-2 rounded-full text-sm border-2 border-dashed border-gray-300 text-gray-500 hover:border-mainBlue hover:text-mainBlue transition"
+                    className="px-4 py-2 rounded-full text-sm border-2 border-dashed border-line text-muted hover:border-accent hover:text-accent transition"
                   >
                     + 새 카테고리
                   </button>
                 )}
               </div>
               {categories.length === 0 && !showCategoryInput && (
-                <p className="text-sm text-gray-500 mt-2">
-                  아직 카테고리가 없습니다. 새 카테고리를 만들어보세요!
+                <p className="text-sm text-muted mt-2">
+                  아직 카테고리가 없습니다. 위 버튼으로 추가할 수 있습니다.
                 </p>
               )}
             </div>
@@ -432,21 +435,21 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 <div className="flex justify-between items-center mb-2">
                   <label
                     htmlFor="content"
-                    className="block text-xl font-medium text-gray-700"
+                    className="block text-xl font-medium text-body"
                   >
                     내용 (Markdown 지원)
                   </label>
                   <div className="flex items-center gap-2">
                     {uploadingImages.length > 0 && (
-                      <span className="text-sm text-mainBlue">
+                      <span className="text-sm text-accent">
                         업로드 중... ({uploadingImages.length})
                       </span>
                     )}
                     <label
                       htmlFor="imageUpload"
-                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg cursor-pointer transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
                     >
-                      📷 이미지 추가
+                      <IconPhoto size={16} /> 이미지 추가
                     </label>
                     <input
                       id="imageUpload"
@@ -467,21 +470,21 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   onDragOver={handleDragOver}
                   onPaste={handlePaste}
                   rows={25}
-                  className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainBlue focus:border-transparent transition font-mono text-sm resize-none"
-                  placeholder="내용을 입력하세요... (Markdown 문법을 사용할 수 있습니다)&#10;&#10;💡 이미지 추가 방법:&#10;1. 📷 이미지 추가 버튼 클릭&#10;2. 이미지를 드래그 앤 드롭&#10;3. Ctrl+V (또는 Cmd+V)로 붙여넣기"
+                  className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none`}
+                  placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
                 />
               </div>
 
               {/* 미리보기 */}
               <div>
-                <label className="block text-xl font-medium text-gray-700 mb-2">
+                <label className="block text-xl font-medium text-body mb-2">
                   미리보기
                 </label>
-                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-gray-200 rounded-lg bg-white overflow-y-auto prose prose-sm max-w-none">
+                <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto">
                   {content ? (
                     <PostContent content={content} />
                   ) : (
-                    <p className="text-gray-400 italic">
+                    <p className="text-faint italic">
                       마크다운 내용이 여기에 미리보기로 표시됩니다...
                     </p>
                   )}
@@ -492,14 +495,14 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             <div className="flex justify-end gap-4 pt-4">
               <Link
                 href={cancelHref}
-                className="px-6 py-3 text-gray-600 hover:text-gray-800 transition"
+                className="px-6 py-3 text-muted hover:text-ink transition"
               >
                 취소
               </Link>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-6 py-3 bg-mainBlue text-white rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading
                   ? "저장 중..."

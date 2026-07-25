@@ -1,24 +1,65 @@
-import { EXTERNAL_LINKS } from "@/lib/constants";
+import { IconBrandGithub, IconWorld, IconMail } from "@tabler/icons-react";
+import { CONTAINER, EXTERNAL_LINKS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+const footerLink =
+  "inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink transition-colors " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-sm";
 
 export default function Footer() {
   return (
-    <footer className="w-full h-auto sm:h-40 py-8 sm:py-10 px-6 sm:px-12 md:px-24 lg:px-48 xl:px-78 border-t bg-gray-100 border-gray-300 flex flex-col gap-6 sm:flex-row sm:gap-0 sm:items-baseline sm:justify-between transition-all duration-300">
-      <div className="flex flex-col">
-        <div className="font-semibold mb-2">Contact Me</div>
-        <div className="flex flex-col gap-0.5">
-          <div>이메일: me@kwon5700.kr</div>
+    <footer className="border-t border-line bg-white">
+      <div
+        className={cn(
+          CONTAINER,
+          "py-10 flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between",
+        )}
+      >
+        <div className="flex flex-col gap-2">
+          <div className="text-lg font-black tracking-tight text-ink">
+            Kwon5700
+            <span
+              aria-hidden="true"
+              className="ml-1 inline-block h-1.5 w-1.5 rounded-[1.5px] bg-accent align-baseline"
+            />
+          </div>
+          <p className="text-sm text-muted">권민재의 개발 기록</p>
+          <p className="text-xs text-faint mt-2">
+            © {new Date().getFullYear()} Kwon Minjae
+          </p>
         </div>
-      </div>
-      <div className="flex flex-col sm:items-end">
-        <div className="font-semibold mb-2">Kwon5700&apos;s Link</div>
-        <div className="flex flex-col gap-0.5 sm:items-end">
-          <a href={EXTERNAL_LINKS.PORTFOLIO} target="_blank">
-            포트폴리오 바로가기
-          </a>
-          <a href={EXTERNAL_LINKS.GITHUB} target="_blank">
-            깃허브 바로가기
-          </a>
-        </div>
+        <nav aria-label="외부 링크">
+          <ul className="flex flex-col gap-2.5 sm:items-end">
+            <li>
+              <a
+                href={EXTERNAL_LINKS.GITHUB}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={footerLink}
+              >
+                <IconBrandGithub size={16} />
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a
+                href={EXTERNAL_LINKS.PORTFOLIO}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={footerLink}
+              >
+                <IconWorld size={16} />
+                Portfolio
+              </a>
+            </li>
+            <li>
+              <a href="mailto:me@kwon5700.kr" className={footerLink}>
+                <IconMail size={16} />
+                me@kwon5700.kr
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </footer>
   );
