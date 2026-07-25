@@ -13,6 +13,7 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
+  RESET_PASSWORD: "/reset-password",
   WRITE: "/write",
   PROFILE: "/profile",
   POST: (id: number | string) => `/post/${id}`,
@@ -38,3 +39,6 @@ export const INTERSECTION_OBSERVER_OPTIONS = {
 
 // 글 작성 권한이 있는 이메일
 export const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+
+// 회원가입·비밀번호 재설정이 공유하는 비밀번호 최소 길이
+export const PASSWORD_MIN_LENGTH = 6;

@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { api } from "@/lib/api";
+import { api, ApiError, NETWORK_ERROR_STATUS } from "@/lib/api";
+import { AUTH_MESSAGES, VERIFICATION_MESSAGES } from "@/lib/messages";
+import type { VerificationPurpose } from "@/types/api";
 
 interface EmailVerificationState {
   // 이메일 관련
@@ -21,6 +23,9 @@ interface EmailVerificationState {
   // 에러 관련
   emailError: string | null;
   codeError: string | null;
+
+  // 비밀번호 재설정용 — 인증 성공 시 백엔드가 내려주는 일회용 토큰
+  resetToken: string | null;
 }
 
 const INITIAL_TIME = 10 * 60; // 10분
@@ -28,7 +33,47 @@ const RESEND_COOLDOWN = 60; // 60초
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function useEmailVerification() {
+/** 코드 전송 실패를 status로 구분한다 — 백엔드 원문은 노출하지 않는다 */
+function getSendCodeErrorMessage(
+  error: unknown,
+  purpose: VerificationPurpose
+): string {
+  if (!(error instanceof ApiError)) return VERIFICATION_MESSAGES.SEND_FAILED;
+
+  if (error.status === NETWORK_ERROR_STATUS) return AUTH_MESSAGES.NETWORK_ERROR;
+  if (error.status === 429) return VERIFICATION_MESSAGES.TOO_MANY_REQUESTS;
+  if (error.status >= 500) return AUTH_MESSAGES.SERVER_ERROR;
+  // 회원가입은 이미 가입된 이메일이 오류, 재설정은 미가입이 오류 — 정반대다
+  if (error.status === 409) return VERIFICATION_MESSAGES.EMAIL_ALREADY_EXISTS;
+  if (error.status === 404) return VERIFICATION_MESSAGES.EMAIL_NOT_REGISTERED;
+  if (error.status === 400) {
+    return purpose === "reset_password"
+      ? VERIFICATION_MESSAGES.EMAIL_NOT_REGISTERED
+      : VERIFICATION_MESSAGES.SEND_FAILED;
+  }
+
+  return VERIFICATION_MESSAGES.SEND_FAILED;
+}
+
+/** 코드 검증 실패를 status로 구분한다 */
+function getVerifyCodeErrorMessage(error: unknown): string {
+  if (!(error instanceof ApiError)) return VERIFICATION_MESSAGES.VERIFY_FAILED;
+
+  if (error.status === NETWORK_ERROR_STATUS) return AUTH_MESSAGES.NETWORK_ERROR;
+  if (error.status === 429) return VERIFICATION_MESSAGES.TOO_MANY_REQUESTS;
+  if (error.status >= 500) return AUTH_MESSAGES.SERVER_ERROR;
+  if (error.status === 400) return VERIFICATION_MESSAGES.INVALID_CODE;
+
+  return VERIFICATION_MESSAGES.VERIFY_FAILED;
+}
+
+interface UseEmailVerificationOptions {
+  purpose?: VerificationPurpose;
+}
+
+export function useEmailVerification({
+  purpose = "register",
+}: UseEmailVerificationOptions = {}) {
   const [state, setState] = useState<EmailVerificationState>({
     email: "",
     isEmailValid: false,
@@ -42,6 +87,7 @@ export function useEmailVerification() {
     resendCooldown: RESEND_COOLDOWN,
     emailError: null,
     codeError: null,
+    resetToken: null,
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -78,7 +124,7 @@ export function useEmailVerification() {
     }));
 
     try {
-      await api.sendVerificationCode({ email: state.email });
+      await api.sendVerificationCode({ email: state.email, purpose });
 
       setState((prev) => ({
         ...prev,
@@ -116,17 +162,13 @@ export function useEmailVerification() {
         });
       }, 1000);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "인증 코드 전송에 실패했습니다. 다시 시도해 주세요.";
       setState((prev) => ({
         ...prev,
         isCodeSending: false,
-        emailError: message,
+        emailError: getSendCodeErrorMessage(error, purpose),
       }));
     }
-  }, [state.email, state.isEmailValid]);
+  }, [state.email, state.isEmailValid, purpose]);
 
   // 인증 코드 변경 핸들러
   const setVerificationCode = useCallback((code: string[]) => {
@@ -149,7 +191,11 @@ export function useEmailVerification() {
     }));
 
     try {
-      await api.verifyCode({ email: state.email, code });
+      const response = await api.verifyCode({
+        email: state.email,
+        code,
+        purpose,
+      });
 
       // 타이머 정리
       if (timerRef.current) clearInterval(timerRef.current);
@@ -159,19 +205,16 @@ export function useEmailVerification() {
         ...prev,
         isCodeVerifying: false,
         isEmailVerified: true,
+        resetToken: response.reset_token ?? null,
       }));
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "인증 코드가 일치하지 않습니다.";
       setState((prev) => ({
         ...prev,
         isCodeVerifying: false,
-        codeError: message,
+        codeError: getVerifyCodeErrorMessage(error),
       }));
     }
-  }, [state.email, state.verificationCode]);
+  }, [state.email, state.verificationCode, purpose]);
 
   // 재전송
   const resendCode = useCallback(async () => {
@@ -197,6 +240,7 @@ export function useEmailVerification() {
       resendCooldown: RESEND_COOLDOWN,
       emailError: null,
       codeError: null,
+      resetToken: null,
     });
   }, []);
 

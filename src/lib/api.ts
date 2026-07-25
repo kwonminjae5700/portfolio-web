@@ -11,6 +11,8 @@ import {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   SendVerificationCodeRequest,
   SendVerificationCodeResponse,
   VerifyCodeRequest,
@@ -21,8 +23,26 @@ import {
   User,
 } from "@/types/api";
 import { API_BASE_URL, PAGINATION } from "./constants";
+import { AUTH_MESSAGES } from "./messages";
 
 const TOKEN_KEY = "token";
+
+/** 서버에 닿지도 못한 경우(네트워크 단절 등)에 쓰는 status */
+export const NETWORK_ERROR_STATUS = 0;
+
+/**
+ * HTTP status를 함께 들고 다니는 에러.
+ * message는 기존과 동일하게 유지되므로 err.message를 쓰던 호출부는 그대로 동작한다.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
 class ApiClient {
   private getToken(): string | null {
@@ -43,14 +63,22 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch {
+      throw new ApiError(AUTH_MESSAGES.NETWORK_ERROR, NETWORK_ERROR_STATUS);
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: "요청 실패" }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+      throw new ApiError(
+        error.message || `HTTP ${response.status}`,
+        response.status
+      );
     }
 
     if (response.status === 204) {
@@ -85,6 +113,13 @@ class ApiClient {
 
   async verifyCode(data: VerifyCodeRequest): Promise<VerifyCodeResponse> {
     return this.request<VerifyCodeResponse>("/auth/verify-code", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    return this.request<ResetPasswordResponse>("/auth/reset-password", {
       method: "POST",
       body: JSON.stringify(data),
     });

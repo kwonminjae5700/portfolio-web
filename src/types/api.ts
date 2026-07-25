@@ -103,8 +103,13 @@ export interface UpdateCommentRequest {
 }
 
 // 이메일 인증 관련 요청/응답
+
+/** 인증 코드를 어떤 목적으로 쓰는지 — 백엔드가 이 값으로 분기한다 */
+export type VerificationPurpose = "register" | "reset_password";
+
 export interface SendVerificationCodeRequest {
   email: string;
+  purpose: VerificationPurpose;
 }
 
 export interface SendVerificationCodeResponse {
@@ -114,14 +119,22 @@ export interface SendVerificationCodeResponse {
 export interface VerifyCodeRequest {
   email: string;
   code: string;
+  purpose: VerificationPurpose;
 }
 
 export interface VerifyCodeResponse {
   message: string;
+  /** purpose가 reset_password일 때만 내려온다. 비밀번호 재설정에만 쓰이는 일회용 토큰 */
+  reset_token?: string;
 }
 
-// API 에러 응답
-export interface ApiError {
+// 비밀번호 재설정 요청/응답
+export interface ResetPasswordRequest {
+  email: string;
+  reset_token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
   message: string;
-  status: number;
 }

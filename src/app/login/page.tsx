@@ -1,13 +1,48 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import { api, ApiError, NETWORK_ERROR_STATUS } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/lib/constants";
-import { ErrorMessage } from "@/components/ui";
+import { AUTH_MESSAGES } from "@/lib/messages";
+import { ErrorMessage, InfoMessage } from "@/components/ui";
 import { inputBase } from "@/components/ui/buttonStyles";
+
+/**
+ * 실패 원인을 status로 구분한다. 백엔드가 준 message는 그대로 노출하지 않는다.
+ *
+ * 미가입(404)과 비밀번호 오류(401)를 나눠 안내하므로, 이메일만으로 가입 여부를
+ * 확인할 수 있다(계정 열거). UX를 위해 의도적으로 택한 트레이드오프다.
+ */
+function getLoginErrorMessage(err: unknown): string {
+  if (!(err instanceof ApiError)) return AUTH_MESSAGES.UNKNOWN;
+
+  if (err.status === NETWORK_ERROR_STATUS) return AUTH_MESSAGES.NETWORK_ERROR;
+  if (err.status === 429) return AUTH_MESSAGES.TOO_MANY_ATTEMPTS;
+  if (err.status >= 500) return AUTH_MESSAGES.SERVER_ERROR;
+  if (err.status === 404) return AUTH_MESSAGES.NOT_REGISTERED;
+  if (err.status === 400 || err.status === 401 || err.status === 403) {
+    return AUTH_MESSAGES.INVALID_PASSWORD;
+  }
+
+  return AUTH_MESSAGES.UNKNOWN;
+}
+
+// 회원가입·비밀번호 재설정 직후 리다이렉트로 넘어온 경우의 안내
+function LoginNotice() {
+  const searchParams = useSearchParams();
+
+  if (searchParams.get("registered") === "true") {
+    return <InfoMessage message={AUTH_MESSAGES.REGISTER_SUCCESS} />;
+  }
+  if (searchParams.get("reset") === "true") {
+    return <InfoMessage message={AUTH_MESSAGES.PASSWORD_RESET_SUCCESS} />;
+  }
+
+  return null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,11 +58,11 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await api.login({ email, password });
+      const response = await api.login({ email: email.trim(), password });
       login(response.token, response.user);
       router.push(ROUTES.HOME);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
+      setError(getLoginErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +85,10 @@ export default function LoginPage() {
         </div>
 
         <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
+          <Suspense fallback={null}>
+            <LoginNotice />
+          </Suspense>
+
           <ErrorMessage message={error} />
 
           <div className="space-y-4">
@@ -91,6 +130,14 @@ export default function LoginPage() {
                 className={inputBase}
                 placeholder="비밀번호를 입력하세요"
               />
+              <div className="mt-2 text-right">
+                <Link
+                  href={ROUTES.RESET_PASSWORD}
+                  className="text-sm text-muted hover:text-accent transition-colors"
+                >
+                  비밀번호를 잊으셨나요?
+                </Link>
+              </div>
             </div>
           </div>
 
