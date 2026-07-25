@@ -11,6 +11,7 @@ import { IconPhoto } from "@tabler/icons-react";
 import { LoadingSpinner } from "@/components/ui";
 import { inputBase } from "@/components/ui/buttonStyles";
 import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
+import { revalidateArticleCache } from "@/lib/actions/articles";
 
 interface PostEditorProps {
   mode: "create" | "edit";
@@ -247,7 +248,9 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
           category_ids:
             selectedCategories.length > 0 ? selectedCategories : undefined,
         });
-        router.push(`/post/${articleId}`);
+        // 이동 전에 캐시를 비운다. 먼저 이동하면 옛 캐시를 그대로 읽는다.
+        await revalidateArticleCache(articleId);
+        router.replace(`/post/${articleId}`);
       } else {
         const newArticle = await api.createArticle({
           title,
@@ -255,7 +258,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
           category_ids:
             selectedCategories.length > 0 ? selectedCategories : undefined,
         });
-        router.push(`/post/${newArticle.id}`);
+        await revalidateArticleCache(newArticle.id);
+        router.replace(`/post/${newArticle.id}`);
       }
     } catch (err) {
       setError(
@@ -279,7 +283,8 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
 
     try {
       await api.deleteArticle(articleId);
-      router.push("/");
+      await revalidateArticleCache(articleId);
+      router.replace("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "글 삭제에 실패했습니다.");
     }

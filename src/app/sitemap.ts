@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { ARTICLES_TAG, CATEGORIES_TAG } from "@/lib/cacheTags";
 import { API_BASE_URL } from "@/lib/constants";
 
 interface Article {
@@ -16,7 +17,7 @@ interface Category {
 async function getArticles(): Promise<Article[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/articles?limit=100`, {
-      next: { revalidate: 3600 }, // 1시간마다 재검증
+      next: { revalidate: 3600, tags: [ARTICLES_TAG] }, // 1시간마다 + 글 변경 시 재검증
     });
     if (!res.ok) {
       console.error("Failed to fetch articles for sitemap:", res.status);
@@ -33,7 +34,7 @@ async function getArticles(): Promise<Article[]> {
 async function getCategories(): Promise<Category[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/categories`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: [CATEGORIES_TAG] },
     });
     if (!res.ok) return [];
     return res.json();

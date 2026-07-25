@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CATEGORIES_TAG } from "@/lib/cacheTags";
 import { API_BASE_URL, ROUTES } from "@/lib/constants";
 import type { Article, Category } from "@/types/api";
 
@@ -37,7 +38,7 @@ async function getCategories(): Promise<Category[]> {
   try {
     const res = await fetch(
       `${API_BASE_URL}/categories`,
-      { next: { revalidate: 300 } } // 5분마다 재검증
+      { next: { revalidate: 300, tags: [CATEGORIES_TAG] } } // 5분마다 + 변경 시 재검증
     );
     if (!res.ok) {
       return [];

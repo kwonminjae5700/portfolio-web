@@ -1,10 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { API_BASE_URL, CONTAINER, READING_COLUMN, ROUTES } from "@/lib/constants";
+import { CONTAINER, READING_COLUMN, ROUTES } from "@/lib/constants";
 import { cn, estimateReadingTime, formatDate } from "@/lib/utils";
 import { extractToc } from "@/lib/toc";
-import { getAdjacentArticles } from "@/lib/articles";
+import { getAdjacentArticles, getArticle } from "@/lib/articles";
 import PostContent from "@/components/post/PostContent";
 import PostActions from "@/components/post/PostActions";
 import PostComments from "@/components/post/PostComments";
@@ -12,23 +12,9 @@ import PostNav from "@/components/post/PostNav";
 import ShareButton from "@/components/post/ShareButton";
 import TableOfContents from "@/components/post/TableOfContents";
 import ViewCounter from "@/components/post/ViewCounter";
-import type { Article } from "@/types/api";
 
 interface PostDetailPageProps {
   params: Promise<{ id: string }>;
-}
-
-// 서버에서 게시글 데이터 가져오기
-async function getArticle(id: string): Promise<Article | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/articles/${id}`, {
-      next: { revalidate: 60 }, // 60초마다 재검증
-    });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
 }
 
 // SEO를 위한 동적 메타데이터 생성

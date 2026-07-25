@@ -1,5 +1,26 @@
+import { cache } from "react";
 import { API_BASE_URL } from "./constants";
+import { ARTICLES_TAG, articleTag } from "./cacheTags";
 import type { Article, ArticleListResponse } from "@/types/api";
+
+/**
+ * 글 상세 1건.
+ * generateMetadata와 페이지 본문이 같은 렌더에서 두 번 호출하므로,
+ * React cache()로 요청 단위 메모이제이션을 보장한다. 호출부마다 fetch를
+ * 따로 쓰면 옵션이 조금만 달라져도 dedupe가 조용히 깨진다.
+ */
+export const getArticle = cache(async (id: string): Promise<Article | null> => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/articles/${id}`, {
+      // 조회수가 서버 렌더에 포함되므로 시간 기반 재검증도 함께 유지한다.
+      next: { revalidate: 60, tags: [articleTag(id)] },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+});
 
 /**
  * 최신 글 목록 (최대 100편)
@@ -18,7 +39,7 @@ export async function getRecentArticles(): Promise<ArticleListResponse> {
       const cursorParam = cursor !== null ? `&last_id=${cursor}` : "";
       const res = await fetch(
         `${API_BASE_URL}/articles?limit=50${cursorParam}`,
-        { next: { revalidate: 60 } },
+        { next: { revalidate: 60, tags: [ARTICLES_TAG] } },
       );
       if (!res.ok) break;
       const data: ArticleListResponse = await res.json();

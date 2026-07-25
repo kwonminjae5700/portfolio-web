@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
 import TopContent from "@/components/TopContent";
+import { ARTICLES_TAG } from "@/lib/cacheTags";
 import { API_BASE_URL, CONTAINER, PAGINATION, SITE_DESCRIPTION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ArticleListResponse } from "@/types/api";
@@ -60,7 +61,7 @@ async function getInitialArticles(): Promise<ArticleListResponse> {
   try {
     const res = await fetch(
       `${API_BASE_URL}/articles?limit=${PAGINATION.DEFAULT_LIMIT}`,
-      { next: { revalidate: 60 } }, // 60초마다 재검증
+      { next: { revalidate: 60, tags: [ARTICLES_TAG] } }, // 60초마다 + 글 변경 시 재검증
     );
     if (!res.ok) {
       return { articles: [], has_more: false, next_cursor: null };
