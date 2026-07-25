@@ -104,7 +104,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    // data-scroll-behavior: 라우트 이동 시 Next가 CSS smooth 스크롤을 잠시 꺼서 새 페이지가 항상 맨 위에서 시작하도록 함
+    <html lang="ko" data-scroll-behavior="smooth">
       <body className={`${avenir.variable} antialiased bg-white text-body`}>
         <Providers>{children}</Providers>
       </body>
