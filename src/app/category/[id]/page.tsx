@@ -56,13 +56,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   );
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-[calc(100dvh-4.5rem)] bg-white">
       <div className={cn(CONTAINER, "py-10 md:py-14")}>
         <div className="max-w-3xl mx-auto">
           <header className="mb-8">
-            <p className="text-[13px] font-semibold text-faint">카테고리</p>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-bold text-ink">
-              {category.name}
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink">
+              <span className="text-accent">#</span> {category.name}
             </h1>
             <p className="mt-2 text-sm text-muted">글 {filtered.length}편</p>
             <div className="mt-6 border-b border-line" />

@@ -423,7 +423,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
               </div>
               {categories.length === 0 && !showCategoryInput && (
                 <p className="text-sm text-muted mt-2">
-                  아직 카테고리가 없습니다. 새 카테고리를 만들어보세요!
+                  아직 카테고리가 없습니다. 위 버튼으로 추가할 수 있습니다.
                 </p>
               )}
             </div>
@@ -471,7 +471,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   onPaste={handlePaste}
                   rows={25}
                   className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none`}
-                  placeholder="내용을 입력하세요... (Markdown 문법을 사용할 수 있습니다)&#10;&#10;💡 이미지 추가 방법:&#10;1. 이미지 추가 버튼 클릭&#10;2. 이미지를 드래그 앤 드롭&#10;3. Ctrl+V (또는 Cmd+V)로 붙여넣기"
+                  placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
                 />
               </div>
 

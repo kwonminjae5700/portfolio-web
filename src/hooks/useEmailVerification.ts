@@ -119,7 +119,7 @@ export function useEmailVerification() {
       const message =
         error instanceof Error
           ? error.message
-          : "인증 코드 전송에 실패했습니다. 다시 시도해주세요";
+          : "인증 코드 전송에 실패했습니다. 다시 시도해 주세요.";
       setState((prev) => ({
         ...prev,
         isCodeSending: false,
@@ -164,7 +164,7 @@ export function useEmailVerification() {
       const message =
         error instanceof Error
           ? error.message
-          : "인증 코드가 일치하지 않습니다";
+          : "인증 코드가 일치하지 않습니다.";
       setState((prev) => ({
         ...prev,
         isCodeVerifying: false,

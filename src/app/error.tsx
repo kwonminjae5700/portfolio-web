@@ -13,12 +13,11 @@ export default function ErrorPage({
   return (
     <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center bg-white px-5">
       <div className="text-center">
-        <p className="text-sm font-semibold text-accent">오류</p>
-        <h1 className="mt-2 text-2xl font-bold text-ink">
-          문제가 발생했습니다
+        <h1 className="text-2xl font-bold text-ink">
+          페이지를 불러오지 못했습니다
         </h1>
         <p className="mt-3 text-sm text-muted">
-          일시적인 오류일 수 있습니다. 다시 시도해 주세요.
+          잠시 후 다시 시도해 주세요. 계속되면 홈에서 다른 글을 볼 수 있습니다.
         </p>
         <div className="mt-8 flex items-center justify-center gap-2">
           <button type="button" onClick={reset} className={btnPrimary}>

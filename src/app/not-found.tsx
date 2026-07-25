@@ -22,7 +22,7 @@ export default function NotFound() {
           페이지를 찾을 수 없습니다
         </h1>
         <p className="mt-3 text-sm text-muted">
-          요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
+          주소가 바뀌었거나 삭제된 글일 수 있습니다.
         </p>
         <Link href="/" className={`${btnPrimary} mt-8`}>
           홈으로 돌아가기

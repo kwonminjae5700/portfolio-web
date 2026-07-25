@@ -152,7 +152,7 @@ export default function RegisterPage() {
     <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center bg-white py-12 px-5">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="text-center text-2xl font-bold text-ink">회원가입</h2>
+          <h1 className="text-center text-2xl font-bold text-ink">회원가입</h1>
           <p className="mt-2 text-center text-sm text-muted">
             이미 계정이 있으신가요?{" "}
             <Link
@@ -401,7 +401,7 @@ export default function RegisterPage() {
           )}
         </form>
 
-        <div className="text-center flex justify-end">
+        <div className="text-center">
           <Link
             href="/"
             className="text-sm text-muted hover:text-ink transition-colors"

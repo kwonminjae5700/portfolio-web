@@ -176,7 +176,7 @@ export default function CategoriesPage() {
               <div className="text-center py-8 text-muted">로딩 중...</div>
             ) : categories.length === 0 ? (
               <div className="text-center py-8 text-muted">
-                아직 카테고리가 없습니다. 위에서 새 카테고리를 추가해보세요!
+                아직 카테고리가 없습니다. 위 입력란에서 추가할 수 있습니다.
               </div>
             ) : (
               <div className="space-y-3">
@@ -214,9 +214,6 @@ export default function CategoriesPage() {
                         <div>
                           <span className="font-medium text-ink">
                             {category.name}
-                          </span>
-                          <span className="text-sm text-faint ml-2">
-                            ID: {category.id}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">

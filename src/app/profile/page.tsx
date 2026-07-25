@@ -125,7 +125,7 @@ export default function ProfilePage() {
             <div className="text-center py-8">
               <p className="text-muted mb-4">아직 작성한 글이 없습니다.</p>
               <Link href="/write" className="text-accent hover:underline">
-                첫 글을 작성해보세요!
+                새 글 작성
               </Link>
             </div>
           ) : (
@@ -167,7 +167,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <div className="text-center mt-8 flex justify-end">
+        <div className="mt-8 text-center">
           <Link href="/" className="text-muted hover:text-ink transition">
             ← 홈으로 돌아가기
           </Link>
