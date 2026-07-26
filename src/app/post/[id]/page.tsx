@@ -1,10 +1,17 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CONTAINER, READING_COLUMN, ROUTES, SITE_NAME, SITE_URL } from "@/lib/constants";
+import { CONTAINER, READING_COLUMN, ROUTES, SITE_NAME } from "@/lib/constants";
 import { cn, estimateReadingTime, formatDate } from "@/lib/utils";
 import { extractToc } from "@/lib/toc";
 import { getAdjacentArticles, getArticle } from "@/lib/articles";
+import {
+  absoluteUrl,
+  articleDescription,
+  blogPostingJsonLd,
+  breadcrumbJsonLd,
+} from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import PostContent from "@/components/post/PostContent";
 import PostActions from "@/components/post/PostActions";
 import PostComments from "@/components/post/PostComments";
@@ -28,17 +35,15 @@ export async function generateMetadata({
     return {
       title: "글을 찾을 수 없습니다",
       description: "요청하신 글을 찾을 수 없습니다.",
+      robots: { index: false, follow: false },
     };
   }
 
-  // 본문에서 description 추출
-  const description = article.content
-    .replace(/[#*`\[\]()>\-_~!]/g, "")
-    .replace(/\n+/g, " ")
-    .trim()
-    .slice(0, 160);
-
+  // 목록 카드 발췌와 같은 stripMarkdown을 태워 뽑는다.
+  // 예전 정규식은 특수문자만 지워서 링크 URL과 코드가 스니펫에 그대로 섞였다.
+  const description = articleDescription(article.content);
   const categories = article.categories?.map((c) => c.name) || [];
+  const url = absoluteUrl(ROUTES.POST(article.id));
 
   return {
     title: article.title,
@@ -48,7 +53,7 @@ export async function generateMetadata({
       title: article.title,
       description,
       type: "article",
-      url: `${SITE_URL}/post/${article.id}`,
+      url,
       publishedTime: article.created_at,
       modifiedTime: article.updated_at || article.created_at,
       authors: [article.author_name],
@@ -69,9 +74,7 @@ export async function generateMetadata({
       description,
       images: ["/og-image.jpg"],
     },
-    alternates: {
-      canonical: `${SITE_URL}/post/${article.id}`,
-    },
+    alternates: { canonical: url },
   };
 }
 
@@ -90,37 +93,26 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const readingTime = estimateReadingTime(article.content);
 
-  // JSON-LD 구조화 데이터
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: article.title,
-    datePublished: article.created_at,
-    dateModified: article.updated_at || article.created_at,
-    author: {
-      "@type": "Person",
-      name: article.author_name,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/og-image.jpg`,
-      },
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/post/${article.id}`,
-    },
-  };
+  // 글 주소가 /post/3처럼 숫자라 검색 결과에 주소만 보이면 주제를 알 수 없다.
+  // "홈 > 카테고리 > 제목"을 따로 알려줘서 그 자리를 채운다.
+  const primaryCategory = article.categories?.[0];
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "홈", path: ROUTES.HOME },
+    ...(primaryCategory
+      ? [
+          {
+            name: primaryCategory.name,
+            path: ROUTES.CATEGORY(primaryCategory.id),
+          },
+        ]
+      : []),
+    { name: article.title, path: ROUTES.POST(article.id) },
+  ]);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={blogPostingJsonLd(article)} />
+      <JsonLd data={breadcrumb} />
       <ViewCounter articleId={article.id} />
       <main className="min-h-screen bg-white">
         <div className={cn(CONTAINER, "py-10 md:py-14")}>

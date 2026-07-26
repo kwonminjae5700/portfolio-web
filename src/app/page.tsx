@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
+import JsonLd from "@/components/JsonLd";
 import TopContent from "@/components/TopContent";
 import { getArticlePage } from "@/lib/articles";
 import {
@@ -11,6 +12,7 @@ import {
   SITE_NAME,
   SITE_URL,
 } from "@/lib/constants";
+import { blogJsonLd, websiteJsonLd } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,15 +23,18 @@ import { cn } from "@/lib/utils";
  */
 export const dynamic = "force-dynamic";
 
+const HOME_TITLE = `${SITE_NAME} — 권민재의 개발 기록과 공부 노트`;
+
 // 홈페이지 메타데이터
 export const metadata: Metadata = {
-  title: "Kwon5700's Blog - 개발 블로그",
-  description:
-    SITE_DESCRIPTION,
+  // absolute를 쓰는 이유: 루트 레이아웃의 "%s | Kwon5700's Blog" 템플릿을 타면
+  // 검색 결과 제목이 "Kwon5700's Blog … | Kwon5700's Blog"로 사이트 이름이
+  // 두 번 나온다. 홈은 템플릿을 건너뛰고 자기 제목을 그대로 쓴다.
+  title: { absolute: HOME_TITLE },
+  description: SITE_DESCRIPTION,
   openGraph: {
-    title: "Kwon5700's Blog - 개발 블로그",
-    description:
-      SITE_DESCRIPTION,
+    title: HOME_TITLE,
+    description: SITE_DESCRIPTION,
     type: "website",
     url: SITE_URL,
     images: [
@@ -77,57 +82,10 @@ export default async function HomePage() {
   // 홈을 얄팍한 페이지로 판단한다. 5xx는 "나중에 다시 와라"라서 회복이 된다.
   const initialData = await getArticlePage(PAGINATION.DEFAULT_LIMIT);
 
-  // JSON-LD 구조화 데이터 (WebSite)
-  const jsonLdWebsite = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Kwon5700's Blog",
-    url: SITE_URL,
-    description:
-      SITE_DESCRIPTION,
-    author: {
-      "@type": "Person",
-      name: "권민재",
-      url: SITE_URL,
-    },
-    inLanguage: "ko-KR",
-  };
-
-  // JSON-LD 구조화 데이터 (Blog)
-  const jsonLdBlog = {
-    "@context": "https://schema.org",
-    "@type": "Blog",
-    name: "Kwon5700's Blog",
-    description:
-      SITE_DESCRIPTION,
-    url: SITE_URL,
-    author: {
-      "@type": "Person",
-      name: "권민재",
-    },
-    blogPost: initialData.articles.slice(0, 5).map((article) => ({
-      "@type": "BlogPosting",
-      headline: article.title,
-      url: `${SITE_URL}/post/${article.id}`,
-      datePublished: article.created_at,
-      dateModified: article.updated_at || article.created_at,
-      author: {
-        "@type": "Person",
-        name: article.author_name,
-      },
-    })),
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBlog) }}
-      />
+      <JsonLd data={websiteJsonLd()} />
+      <JsonLd data={blogJsonLd(initialData.articles.slice(0, 5))} />
       <main>
         {/* 히어로 — 직접 찍은 여행 사진이 이 블로그의 시그니처 */}
         <div className="relative h-[200px] sm:h-[280px] md:h-[340px] lg:h-[380px] bg-wash">

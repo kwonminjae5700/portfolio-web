@@ -85,8 +85,12 @@ export const SITE_URL = (
 // 검색 결과와 OG 카드에 노출되는 사이트 이름
 export const SITE_NAME = "Kwon5700's Blog";
 
-// 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다
-export const SITE_DESCRIPTION = "개발하며 배운 것들을 기록하는 권민재의 블로그.";
+/**
+ * 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다.
+ * 검색 결과 스니펫에 그대로 쓰이므로, 무슨 글이 있는 곳인지 알 수 있을 만큼은 길게.
+ */
+export const SITE_DESCRIPTION =
+  "개발하며 배운 것들과 공부한 내용을 기록하는 권민재의 블로그. 문제를 만나고 해결한 과정, 그때그때의 학습 노트를 남깁니다.";
 
 export const EXTERNAL_LINKS = {
   PORTFOLIO: "https://kwon5700.kr",
