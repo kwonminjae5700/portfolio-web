@@ -146,15 +146,8 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* 마스트헤드 */}
-        <section className={cn(CONTAINER, "pt-9 md:pt-12")}>
-          <h1 className="text-2xl md:text-[28px] font-bold text-ink">
-            권민재의 개발 기록
-          </h1>
-          <p className="mt-2 text-[15px] text-muted">
-            개발하며 배운 것들을 기록합니다.
-          </p>
-        </section>
+        {/* 마스트헤드 (화면에는 숨기고 문서 구조상 제목만 유지) */}
+        <h1 className="sr-only">권민재의 개발 기록</h1>
 
         <section
           className={cn(
