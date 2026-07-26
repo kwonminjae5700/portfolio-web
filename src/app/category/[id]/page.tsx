@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/ArticleList";
 import { getRecentArticles } from "@/lib/articles";
 import { getCategory } from "@/lib/categories";
-import { CONTAINER, ROUTES } from "@/lib/constants";
+import { CONTAINER, ROUTES, SITE_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 interface CategoryPageProps {
@@ -24,6 +24,10 @@ export async function generateMetadata({
   return {
     title: `${category.name} 카테고리`,
     description: `${category.name} 카테고리의 글 목록입니다.`,
+    // 이게 없으면 루트 레이아웃의 canonical을 물려받아 홈을 가리킨다.
+    // sitemap에는 색인해달라고 제출해놓고 페이지에선 "나는 홈"이라고 말하는 꼴이라,
+    // Google이 "대체 페이지(적절한 표준 태그 있음)"로 통째로 걷어냈다.
+    alternates: { canonical: `${SITE_URL}${ROUTES.CATEGORY(category.id)}` },
   };
 }
 

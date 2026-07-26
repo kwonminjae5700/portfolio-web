@@ -4,7 +4,13 @@ import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
 import TopContent from "@/components/TopContent";
 import { getArticlePage } from "@/lib/articles";
-import { CONTAINER, PAGINATION, SITE_DESCRIPTION } from "@/lib/constants";
+import {
+  CONTAINER,
+  PAGINATION,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 /**
@@ -25,16 +31,18 @@ export const metadata: Metadata = {
     description:
       SITE_DESCRIPTION,
     type: "website",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr",
+    url: SITE_URL,
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Kwon5700's Blog",
+        alt: SITE_NAME,
       },
     ],
   },
+  // 루트 레이아웃에서 canonical을 걷어냈으므로 각 라우트가 자기 것을 명시한다
+  alternates: { canonical: SITE_URL },
 };
 
 // 로딩 스켈레톤 컴포넌트
@@ -68,21 +76,19 @@ export default async function HomePage() {
   // "글이 하나도 없는 사이트"를 200으로 응답했다 — Google이 이걸 반복해서 보면
   // 홈을 얄팍한 페이지로 판단한다. 5xx는 "나중에 다시 와라"라서 회복이 된다.
   const initialData = await getArticlePage(PAGINATION.DEFAULT_LIMIT);
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
   // JSON-LD 구조화 데이터 (WebSite)
   const jsonLdWebsite = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Kwon5700's Blog",
-    url: siteUrl,
+    url: SITE_URL,
     description:
       SITE_DESCRIPTION,
     author: {
       "@type": "Person",
       name: "권민재",
-      url: siteUrl,
+      url: SITE_URL,
     },
     inLanguage: "ko-KR",
   };
@@ -94,7 +100,7 @@ export default async function HomePage() {
     name: "Kwon5700's Blog",
     description:
       SITE_DESCRIPTION,
-    url: siteUrl,
+    url: SITE_URL,
     author: {
       "@type": "Person",
       name: "권민재",
@@ -102,7 +108,7 @@ export default async function HomePage() {
     blogPost: initialData.articles.slice(0, 5).map((article) => ({
       "@type": "BlogPosting",
       headline: article.title,
-      url: `${siteUrl}/post/${article.id}`,
+      url: `${SITE_URL}/post/${article.id}`,
       datePublished: article.created_at,
       dateModified: article.updated_at || article.created_at,
       author: {

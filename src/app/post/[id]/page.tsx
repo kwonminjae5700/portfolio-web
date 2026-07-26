@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CONTAINER, READING_COLUMN, ROUTES } from "@/lib/constants";
+import { CONTAINER, READING_COLUMN, ROUTES, SITE_NAME, SITE_URL } from "@/lib/constants";
 import { cn, estimateReadingTime, formatDate } from "@/lib/utils";
 import { extractToc } from "@/lib/toc";
 import { getAdjacentArticles, getArticle } from "@/lib/articles";
@@ -23,8 +23,6 @@ export async function generateMetadata({
 }: PostDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const article = await getArticle(id);
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
   if (!article) {
     return {
@@ -50,12 +48,12 @@ export async function generateMetadata({
       title: article.title,
       description,
       type: "article",
-      url: `${siteUrl}/post/${article.id}`,
+      url: `${SITE_URL}/post/${article.id}`,
       publishedTime: article.created_at,
       modifiedTime: article.updated_at || article.created_at,
       authors: [article.author_name],
       tags: categories,
-      siteName: "Kwon5700's Blog",
+      siteName: SITE_NAME,
       images: [
         {
           url: "/og-image.jpg",
@@ -72,7 +70,7 @@ export async function generateMetadata({
       images: ["/og-image.jpg"],
     },
     alternates: {
-      canonical: `${siteUrl}/post/${article.id}`,
+      canonical: `${SITE_URL}/post/${article.id}`,
     },
   };
 }
@@ -93,8 +91,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const readingTime = estimateReadingTime(article.content);
 
   // JSON-LD 구조화 데이터
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -107,15 +103,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     },
     publisher: {
       "@type": "Organization",
-      name: "Kwon5700's Blog",
+      name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${siteUrl}/og-image.jpg`,
+        url: `${SITE_URL}/og-image.jpg`,
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${siteUrl}/post/${article.id}`,
+      "@id": `${SITE_URL}/post/${article.id}`,
     },
   };
 

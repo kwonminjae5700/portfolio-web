@@ -72,6 +72,19 @@ export const EDITOR_CONTAINER =
  */
 export const EDITOR_SPLIT_MIN_WIDTH = 1672;
 
+/**
+ * 사이트 정본 URL. canonical, OG, sitemap, robots, JSON-LD가 전부 이 값에서 나온다.
+ * 8곳에 흩어져 있던 하드코딩을 여기로 모았다 — 도메인이 바뀌면 여기만 고친다.
+ * 끝 슬래시를 자르는 이유: `${SITE_URL}/post/3`이 "//post/3"이 되면 canonical이
+ * 실제 URL과 달라지고, Google은 그걸 다른 페이지로 취급한다.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr"
+).replace(/\/+$/, "");
+
+// 검색 결과와 OG 카드에 노출되는 사이트 이름
+export const SITE_NAME = "Kwon5700's Blog";
+
 // 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다
 export const SITE_DESCRIPTION = "개발하며 배운 것들을 기록하는 권민재의 블로그.";
 

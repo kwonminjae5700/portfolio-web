@@ -5,8 +5,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { darkroom } from "./codeTheme";
 import { IconCopy, IconCheck } from "@tabler/icons-react";
 import { SOURCE_LINE_ATTR } from "@/lib/rehypeSourceLine";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
+import { SITE_URL } from "@/lib/constants";
 
 // 코드 블록 컴포넌트
 function CodeBlock({
