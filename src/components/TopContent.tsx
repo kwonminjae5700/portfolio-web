@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CATEGORIES_TAG } from "@/lib/cacheTags";
+import { getCategories } from "@/lib/categories";
 import { API_BASE_URL, ROUTES } from "@/lib/constants";
 import type { Article, Category } from "@/types/api";
 
@@ -33,17 +33,14 @@ async function getTopArticles(): Promise<Article[]> {
   }
 }
 
-// 서버에서 카테고리 가져오기
-async function getCategories(): Promise<Category[]> {
+/**
+ * 사이드바는 보조 UI다. 카테고리 조회가 실패해도 홈 전체를 5xx로 날리지 않고
+ * 위젯만 비운다. (본문 글 목록은 반대로 실패를 그대로 던진다 — 그쪽이 비면
+ * 크롤러에게 "글 없는 사이트"로 보이기 때문)
+ */
+async function getSidebarCategories(): Promise<Category[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/categories`,
-      { next: { revalidate: 300, tags: [CATEGORIES_TAG] } } // 5분마다 + 변경 시 재검증
-    );
-    if (!res.ok) {
-      return [];
-    }
-    return res.json();
+    return await getCategories();
   } catch {
     return [];
   }
@@ -79,7 +76,7 @@ const CategoryItem = ({ category }: CategoryItemProps) => (
 
 const TopContent = async ({ mode }: TopContentProps) => {
   const articles = mode === "posts" ? await getTopArticles() : [];
-  const categories = mode === "categories" ? await getCategories() : [];
+  const categories = mode === "categories" ? await getSidebarCategories() : [];
 
   const title = mode === "posts" ? "인기 글" : "카테고리";
   const isEmpty =

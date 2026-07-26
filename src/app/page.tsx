@@ -3,10 +3,17 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import ArticleList from "@/components/ArticleList";
 import TopContent from "@/components/TopContent";
-import { ARTICLES_TAG } from "@/lib/cacheTags";
-import { API_BASE_URL, CONTAINER, PAGINATION, SITE_DESCRIPTION } from "@/lib/constants";
+import { getArticlePage } from "@/lib/articles";
+import { CONTAINER, PAGINATION, SITE_DESCRIPTION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import type { ArticleListResponse } from "@/types/api";
+
+/**
+ * 홈은 어차피 요청마다 서버 렌더된다(TopContent가 조회수를 no-store로 읽는다).
+ * 그런데도 Next는 빌드 때 한 번 프리렌더를 시도하고, 거기서 예외가 나면 빌드가 죽는다.
+ * 글 목록 조회 실패를 이제 그대로 던지므로, 명시하지 않으면 "백엔드가 떠 있어야만
+ * 빌드되는" 상태가 된다. 실패는 빌드가 아니라 요청 시점에 5xx로 드러나야 한다.
+ */
+export const dynamic = "force-dynamic";
 
 // 홈페이지 메타데이터
 export const metadata: Metadata = {
@@ -56,24 +63,11 @@ const TopContentSkeleton = ({ mode }: { mode: "posts" | "categories" }) => (
   </div>
 );
 
-// 서버에서 초기 게시글 데이터 가져오기
-async function getInitialArticles(): Promise<ArticleListResponse> {
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/articles?limit=${PAGINATION.DEFAULT_LIMIT}`,
-      { next: { revalidate: 60, tags: [ARTICLES_TAG] } }, // 60초마다 + 글 변경 시 재검증
-    );
-    if (!res.ok) {
-      return { articles: [], has_more: false, next_cursor: null };
-    }
-    return res.json();
-  } catch {
-    return { articles: [], has_more: false, next_cursor: null };
-  }
-}
-
 export default async function HomePage() {
-  const initialData = await getInitialArticles();
+  // 실패하면 던진다. 예전엔 빈 목록으로 삼켜서, 백엔드가 죽은 동안 크롤러가 오면
+  // "글이 하나도 없는 사이트"를 200으로 응답했다 — Google이 이걸 반복해서 보면
+  // 홈을 얄팍한 페이지로 판단한다. 5xx는 "나중에 다시 와라"라서 회복이 된다.
+  const initialData = await getArticlePage(PAGINATION.DEFAULT_LIMIT);
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 

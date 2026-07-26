@@ -3,26 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/ArticleList";
 import { getRecentArticles } from "@/lib/articles";
-import { CATEGORIES_TAG } from "@/lib/cacheTags";
-import { API_BASE_URL, CONTAINER, ROUTES } from "@/lib/constants";
+import { getCategory } from "@/lib/categories";
+import { CONTAINER, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/types/api";
 
 interface CategoryPageProps {
   params: Promise<{ id: string }>;
-}
-
-// 서버에서 카테고리 정보 가져오기
-async function getCategory(id: string): Promise<Category | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/categories/${id}`, {
-      next: { revalidate: 300, tags: [CATEGORIES_TAG] },
-    });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
 }
 
 export async function generateMetadata({
