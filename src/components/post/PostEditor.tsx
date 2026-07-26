@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/ui";
 import { inputBase } from "@/components/ui/buttonStyles";
 import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
 import { revalidateArticleCache } from "@/lib/actions/articles";
+import { useScrollSync } from "@/hooks";
 
 interface PostEditorProps {
   mode: "create" | "edit";
@@ -132,6 +133,9 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
     const textarea = textareaRef.current;
     if (textarea) caretRef.current = textarea.selectionStart;
   };
+
+  // 작성창과 미리보기가 같은 지점을 보도록 스크롤을 묶는다 (2단 레이아웃에서만)
+  const previewRef = useScrollSync({ textareaRef, content });
 
   const isEditMode = mode === "edit";
 
@@ -647,10 +651,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 auto로 만들어서, 패딩이 없으면 미리보기 안에 가로 스크롤이 생긴다.
                 안쪽 READING_COLUMN이 상세 페이지의 <article>과 같은 역할.
               */}
-              <div className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto">
+              <div
+                ref={previewRef}
+                className="w-full h-[400px] lg:h-[600px] px-4 py-3 border border-line rounded-md bg-white overflow-y-auto"
+              >
                 <div className={READING_COLUMN}>
                   {content ? (
-                    <PostContent content={content} />
+                    <PostContent content={content} sourceLineAnchors />
                   ) : (
                     <p className="text-faint italic">
                       마크다운 내용이 여기에 미리보기로 표시됩니다...

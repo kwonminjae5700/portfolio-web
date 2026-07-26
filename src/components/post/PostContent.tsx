@@ -1,56 +1,42 @@
 "use client";
 
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
-import katex from "katex";
+import type { PluggableList } from "unified";
 import "katex/dist/katex.min.css";
+import { preprocessMath } from "@/lib/markdownSource";
+import { rehypeSourceLine } from "@/lib/rehypeSourceLine";
 import { markdownComponents } from "./markdownComponents";
 
 interface PostContentProps {
   content: string;
+  /**
+   * 최상위 블록에 data-source-line을 심는다. 에디터 미리보기 전용 —
+   * 상세 페이지는 켜지 않아 마크업이 지금 그대로 유지된다.
+   */
+  sourceLineAnchors?: boolean;
 }
 
-// 마크다운 내 수식을 KaTeX HTML로 전처리
-function preprocessMath(markdown: string): string {
-  // Display math: $$...$$ (멀티라인 지원)
-  let result = markdown.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
-    try {
-      const html = katex.renderToString(math.trim(), {
-        displayMode: true,
-        throwOnError: false,
-      });
-      return `<div class="katex-display-block">${html}</div>`;
-    } catch {
-      return `$$${math}$$`;
-    }
-  });
-
-  // Inline math: $...$ (한 줄 내에서만)
-  result = result.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
-    try {
-      const html = katex.renderToString(math.trim(), {
-        displayMode: false,
-        throwOnError: false,
-      });
-      return `<span class="katex-inline">${html}</span>`;
-    } catch {
-      return `$${math}$`;
-    }
-  });
-
-  return result;
-}
-
-export default function PostContent({ content }: PostContentProps) {
-  const processedContent = preprocessMath(content);
+export default function PostContent({
+  content,
+  sourceLineAnchors = false,
+}: PostContentProps) {
+  const { processedContent, rehypePlugins } = useMemo(() => {
+    const { content: processed, toSourceLine } = preprocessMath(content);
+    const plugins: PluggableList = sourceLineAnchors
+      ? [[rehypeSourceLine, { toSourceLine }], rehypeRaw, rehypeSlug]
+      : [rehypeRaw, rehypeSlug];
+    return { processedContent: processed, rehypePlugins: plugins };
+  }, [content, sourceLineAnchors]);
 
   return (
     <div className="max-w-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, rehypeSlug]}
+        rehypePlugins={rehypePlugins}
         components={markdownComponents}
       >
         {processedContent}

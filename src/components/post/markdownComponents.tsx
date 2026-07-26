@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { darkroom } from "./codeTheme";
 import { IconCopy, IconCheck } from "@tabler/icons-react";
+import { SOURCE_LINE_ATTR } from "@/lib/rehypeSourceLine";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 
@@ -11,9 +12,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://blog.kwon5700.kr";
 function CodeBlock({
   children,
   language,
+  anchor,
 }: {
   children: string;
   language: string;
+  anchor?: AnchorProps;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -24,7 +27,7 @@ function CodeBlock({
   };
 
   return (
-    <div className="my-6 rounded-lg overflow-hidden -mx-4 md:mx-0">
+    <div {...anchor} className="my-6 rounded-lg overflow-hidden -mx-4 md:mx-0">
       {/* 헤더 바 */}
       <div className="flex items-center justify-between px-4 py-2 bg-code-chrome">
         <span className="font-mono text-[11px] uppercase tracking-wider text-code-muted">
@@ -82,13 +85,29 @@ function domProps(props: Record<string, unknown>) {
   const rest = { ...props };
   delete rest.node;
   delete rest.children;
+  delete rest[SOURCE_LINE_ATTR];
+  delete rest.dataSourceLine;
   return rest;
+}
+
+type AnchorProps = Record<string, unknown> | undefined;
+
+/**
+ * 에디터 미리보기의 스크롤 동기화 앵커(data-source-line)를 DOM까지 흘려보낸다.
+ * react-markdown 버전에 따라 하이픈/카멜 어느 쪽으로 넘어올지 확실치 않아 둘 다 읽고,
+ * 내보낼 때는 항상 하이픈 형태로 고정한다.
+ * rehypeSourceLine을 켜지 않은 상세 페이지에서는 undefined라 속성 자체가 붙지 않는다.
+ */
+function anchorProps(props: Record<string, unknown>): AnchorProps {
+  const line = props[SOURCE_LINE_ATTR] ?? props.dataSourceLine;
+  return line === undefined ? undefined : { [SOURCE_LINE_ATTR]: line };
 }
 
 export const markdownComponents = {
   h1: ({ children, ...props }: any) => (
     <h1
       {...domProps(props)}
+      {...anchorProps(props)}
       className="scroll-mt-24 text-2xl sm:text-3xl font-bold text-ink mt-12 mb-5 pt-8 border-t border-line first:border-0 first:pt-0 first:mt-0"
     >
       {children}
@@ -97,6 +116,7 @@ export const markdownComponents = {
   h2: ({ children, ...props }: any) => (
     <h2
       {...domProps(props)}
+      {...anchorProps(props)}
       className="scroll-mt-24 text-xl sm:text-2xl font-bold text-ink mt-10 mb-4"
     >
       {children}
@@ -105,6 +125,7 @@ export const markdownComponents = {
   h3: ({ children, ...props }: any) => (
     <h3
       {...domProps(props)}
+      {...anchorProps(props)}
       className="scroll-mt-24 text-lg sm:text-xl font-bold text-ink mt-8 mb-3"
     >
       {children}
@@ -113,31 +134,44 @@ export const markdownComponents = {
   h4: ({ children, ...props }: any) => (
     <h4
       {...domProps(props)}
+      {...anchorProps(props)}
       className="scroll-mt-24 text-base sm:text-lg font-bold text-ink mt-6 mb-2"
     >
       {children}
     </h4>
   ),
-  p: ({ children }: any) => (
-    <p className="text-body leading-8 mb-5 text-[15px] sm:text-base">
+  p: ({ children, ...props }: any) => (
+    <p
+      {...anchorProps(props)}
+      className="text-body leading-8 mb-5 text-[15px] sm:text-base"
+    >
       {children}
     </p>
   ),
   strong: ({ children }: any) => (
     <strong className="font-bold text-ink">{children}</strong>
   ),
-  blockquote: ({ children }: any) => (
-    <blockquote className="border-l-[3px] border-accent bg-accent-soft/60 px-5 py-3 my-6 rounded-r-md text-body [&>p]:mb-0 [&>p+p]:mt-3">
+  blockquote: ({ children, ...props }: any) => (
+    <blockquote
+      {...anchorProps(props)}
+      className="border-l-[3px] border-accent bg-accent-soft/60 px-5 py-3 my-6 rounded-r-md text-body [&>p]:mb-0 [&>p+p]:mt-3"
+    >
       {children}
     </blockquote>
   ),
-  ul: ({ children }: any) => (
-    <ul className="list-disc pl-6 mb-5 space-y-2 marker:text-faint">
+  ul: ({ children, ...props }: any) => (
+    <ul
+      {...anchorProps(props)}
+      className="list-disc pl-6 mb-5 space-y-2 marker:text-faint"
+    >
       {children}
     </ul>
   ),
-  ol: ({ children }: any) => (
-    <ol className="list-decimal pl-6 mb-5 space-y-2 marker:text-faint">
+  ol: ({ children, ...props }: any) => (
+    <ol
+      {...anchorProps(props)}
+      className="list-decimal pl-6 mb-5 space-y-2 marker:text-faint"
+    >
       {children}
     </ol>
   ),
@@ -146,15 +180,17 @@ export const markdownComponents = {
       {children}
     </li>
   ),
-  hr: () => <hr className="my-10 border-line" />,
-  code: ({ children, className }: any) => {
+  hr: ({ ...props }: any) => (
+    <hr {...anchorProps(props)} className="my-10 border-line" />
+  ),
+  code: ({ children, className, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : "text";
     const isCodeBlock = className?.includes("language-");
 
     if (isCodeBlock) {
       return (
-        <CodeBlock language={language}>
+        <CodeBlock language={language} anchor={anchorProps(props)}>
           {String(children).replace(/\n$/, "")}
         </CodeBlock>
       );
@@ -166,8 +202,11 @@ export const markdownComponents = {
     );
   },
   pre: ({ children }: any) => <>{children}</>,
-  table: ({ children }: any) => (
-    <div className="overflow-x-auto mb-6 rounded-lg border border-line">
+  table: ({ children, ...props }: any) => (
+    <div
+      {...anchorProps(props)}
+      className="overflow-x-auto mb-6 rounded-lg border border-line"
+    >
       <table className="w-full border-collapse text-[15px]">{children}</table>
     </div>
   ),

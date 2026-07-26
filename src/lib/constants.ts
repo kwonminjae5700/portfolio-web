@@ -59,10 +59,18 @@ export const EDITOR_PANE = "w-full max-w-[778px] mx-auto min-w-0";
  * 필요 뷰포트 = 1660 + 스크롤바 게터 8 = 1668 → 여유를 두고 1672에서 전환.
  * (MacBook 16" 기본 해상도가 1728px이라 그 아래여야 한다)
  *
- * 이 수치들은 EDITOR_PANE, 그리드 gap과 물려 있다. 하나 바꾸면 전부 다시 계산할 것.
+ * 이 수치들은 EDITOR_PANE, 그리드 gap, EDITOR_SPLIT_MIN_WIDTH와 물려 있다.
+ * 하나 바꾸면 전부 다시 계산할 것.
  */
 export const EDITOR_CONTAINER =
   "mx-auto px-5 sm:px-8 lg:px-10 max-w-[858px] min-[1672px]:max-w-[1660px]";
+
+/**
+ * 에디터가 좌우 2단이 되는 최소 뷰포트 폭.
+ * 위 EDITOR_CONTAINER와 PostEditor 그리드의 min-[1672px]와 반드시 같아야 한다 —
+ * 스크롤 동기화가 "두 판이 나란히 보이는가"를 이 값으로 판단한다.
+ */
+export const EDITOR_SPLIT_MIN_WIDTH = 1672;
 
 // 사이트 공통 메타 설명 — 여러 곳에서 재사용해 중복을 피한다
 export const SITE_DESCRIPTION = "개발하며 배운 것들을 기록하는 권민재의 블로그.";
