@@ -106,6 +106,21 @@ body {
   vertical-align: middle;
 }
 
+/*
+  모달 스크롤 잠금 — overflow:hidden으로 스크롤바가 사라지면 그 폭만큼 본문이
+  넓어져 화면이 옆으로 흔들린다. Modal이 잠금 전후 폭 차이(=사라진 스크롤바 폭)를
+  재서 --scrollbar-comp에 넣고, 같은 폭을 패딩으로 되돌려 흔들림을 없앤다.
+  fixed인 헤더는 뷰포트 기준으로 그려져 html 패딩의 영향을 받지 않으므로 따로 보정한다.
+*/
+html[data-scroll-locked] {
+  overflow: hidden;
+  padding-right: var(--scrollbar-comp, 0px);
+}
+
+html[data-scroll-locked] .site-header {
+  padding-right: var(--scrollbar-comp, 0px);
+}
+
 /* 모션 — 사용자 설정 존중 */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes fade-up {
@@ -135,6 +150,11 @@ body {
   }
 
   .menu-panel {
+    animation: menu-in 0.18s ease-out both;
+  }
+
+  /* 모달 패널 — 메뉴와 같은 모션 언어를 공유한다 */
+  .modal-panel {
     animation: menu-in 0.18s ease-out both;
   }
 }

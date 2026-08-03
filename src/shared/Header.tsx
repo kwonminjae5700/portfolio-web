@@ -62,7 +62,8 @@ const Header = () => {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 h-18 transition-[background-color,border-color] duration-300",
+          // site-header: 모달 스크롤 잠금 시 스크롤바 폭 보정 대상 (globals.css)
+          "site-header fixed inset-x-0 top-0 z-50 h-18 transition-[background-color,border-color] duration-300",
           scrolled
             ? "bg-white/85 backdrop-blur-md border-b border-line"
             : "bg-white border-b border-transparent",
