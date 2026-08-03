@@ -16,6 +16,11 @@ export const btnOutline = `${base} border border-line text-body hover:border-fai
 
 export const btnDanger = `${base} text-danger hover:bg-danger-soft px-4 py-2`;
 
+/** 에디터 툴바 소형 버튼 — 이미지/글 참조/도움말이 공유 */
+export const btnToolbar =
+  "inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep " +
+  "text-sm rounded-md transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+
 /** 텍스트 인풋/텍스트에어리어 공용 스타일 */
 export const inputBase =
   "w-full px-4 py-3 border border-line rounded-md text-ink placeholder:text-faint " +

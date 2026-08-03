@@ -7,9 +7,10 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Category, Article } from "@/types/api";
 import PostContent from "@/components/post/PostContent";
-import { IconPhoto } from "@tabler/icons-react";
+import MarkdownHelpModal from "@/components/post/MarkdownHelpModal";
+import { IconPhoto, IconMarkdown } from "@tabler/icons-react";
 import { LoadingSpinner } from "@/components/ui";
-import { inputBase } from "@/components/ui/buttonStyles";
+import { inputBase, btnToolbar } from "@/components/ui/buttonStyles";
 import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
 import { revalidateArticleCache } from "@/lib/actions/articles";
 import { useScrollSync } from "@/hooks";
@@ -127,6 +128,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [showCategoryInput, setShowCategoryInput] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   /**
    * 마지막으로 알고 있는 캐럿 위치. null이면 문서 끝에 붙인다.
@@ -651,7 +653,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
           <div className="grid grid-cols-1 gap-6 justify-center min-[1672px]:grid-cols-[778px_778px]">
             {/* 에디터 */}
             <div className={EDITOR_PANE}>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-wrap justify-between items-center gap-y-2 mb-2">
                 <label
                   htmlFor="content"
                   className="block text-xl font-medium text-body"
@@ -668,9 +670,9 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   <label
                     htmlFor="imageUpload"
                     onMouseDown={rememberCaret}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-wash hover:bg-accent-soft text-body hover:text-accent-deep text-sm rounded-md cursor-pointer transition"
+                    className={`${btnToolbar} cursor-pointer`}
                   >
-                    <IconPhoto size={16} /> 이미지 추가
+                    <IconPhoto size={16} /> 이미지
                   </label>
                   <input
                     id="imageUpload"
@@ -680,6 +682,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                     onChange={handleFileSelect}
                     className="hidden"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setIsHelpOpen(true)}
+                    className={btnToolbar}
+                  >
+                    <IconMarkdown size={16} /> 도움말
+                  </button>
                 </div>
               </div>
               <textarea
@@ -752,6 +761,11 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             </button>
           </div>
         </form>
+
+        <MarkdownHelpModal
+          open={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+        />
       </div>
     </main>
   );
