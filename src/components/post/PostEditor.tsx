@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -18,6 +18,7 @@ import {
   READING_COLUMN,
   ROUTES,
 } from "@/lib/constants";
+import { estimateReadingTime } from "@/lib/utils";
 import { revalidateArticleCache } from "@/lib/actions/articles";
 import { useScrollSync } from "@/hooks";
 import {
@@ -138,6 +139,11 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   /**
+   * 이탈 경고의 기준점. 작성 모드는 빈 값, 수정 모드는 서버에서 불러온 값.
+   * 카테고리는 정렬해 비교한다 — 껐다 켜서 순서만 바뀐 것은 변경이 아니다.
+   */
+  const initialRef = useRef({ title: "", content: "", cats: "" });
+  /**
    * 마지막으로 알고 있는 캐럿 위치. null이면 문서 끝에 붙인다.
    * await 이후의 DOM에서 읽으면 이미 포커스가 옮겨간 뒤라 0이 나오므로,
    * 사용자 이벤트 시점에 동기로 기록해 둔다.
@@ -195,6 +201,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
         setContent(articleData.content);
         setSelectedCategories(articleData.categories?.map((c) => c.id) || []);
         setCategories(categoriesData);
+        initialRef.current = {
+          title: articleData.title,
+          content: articleData.content,
+          cats: (articleData.categories?.map((c) => c.id) || [])
+            .sort((a, b) => a - b)
+            .join(","),
+        };
 
         // 권한 체크
         if (user && articleData.author_id !== user.id) {
@@ -213,6 +226,26 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
       fetchData();
     }
   }, [articleId, authLoading, isLoggedIn, user, isEditMode]);
+
+  const isDirty =
+    title !== initialRef.current.title ||
+    content !== initialRef.current.content ||
+    [...selectedCategories].sort((a, b) => a - b).join(",") !==
+      initialRef.current.cats;
+
+  /**
+   * 새로고침/탭 닫기에서 작성 중인 내용을 지키는 이탈 경고.
+   * 저장 후의 router.replace는 클라이언트 내비게이션이라 beforeunload가
+   * 발생하지 않으므로 저장 흐름을 방해하지 않는다.
+   */
+  useEffect(() => {
+    if (!isDirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty]);
+
+  const readingTime = useMemo(() => estimateReadingTime(content), [content]);
 
   const handleCategoryToggle = (categoryId: number) => {
     setSelectedCategories((prev) =>
@@ -593,7 +626,23 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            // 모달이 열려 있으면 저장 단축키를 끈다 (포털이어도 React 트리로는 버블될 수 있다)
+            if (isHelpOpen || isReferenceOpen) return;
+            // 한글 IME 조합을 끝내는 Enter는 isComposing으로 걸러진다
+            if (
+              (e.metaKey || e.ctrlKey) &&
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing
+            ) {
+              e.preventDefault();
+              e.currentTarget.requestSubmit();
+            }
+          }}
+          className="space-y-6"
+        >
           {error && (
             <div className="bg-danger-soft border border-danger-line text-danger px-4 py-3 rounded-md text-sm">
               {error}
@@ -767,6 +816,11 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                 className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none [scrollbar-gutter:stable]`}
                 placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
               />
+              {content && (
+                <p className="mt-1.5 text-right text-xs text-faint">
+                  {content.length.toLocaleString()}자 · 약 {readingTime}분
+                </p>
+              )}
             </div>
 
             {/* 미리보기 */}
@@ -800,6 +854,14 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
           <div className="flex justify-end gap-4 pt-4">
             <Link
               href={cancelHref}
+              onClick={(e) => {
+                if (
+                  isDirty &&
+                  !confirm("작성 중인 내용이 사라집니다. 나가시겠습니까?")
+                ) {
+                  e.preventDefault();
+                }
+              }}
               className="px-6 py-3 text-muted hover:text-ink transition"
             >
               취소
@@ -807,6 +869,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
             <button
               type="submit"
               disabled={isLoading}
+              title="⌘/Ctrl + Enter로 저장"
               className="px-6 py-3 bg-accent text-white rounded-md hover:bg-accent-deep transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading
