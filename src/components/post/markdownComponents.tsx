@@ -202,7 +202,7 @@ export const markdownComponents = {
     if (isCodeBlock) {
       return (
         <CodeBlock language={language} anchor={anchorProps(props)}>
-          {String(children).replace(/\n$/, "")}
+          {String(children ?? "").replace(/\n$/, "")}
         </CodeBlock>
       );
     }
