@@ -27,11 +27,38 @@ import {
   computeOutdentEdit,
   type IndentEdit,
 } from "@/lib/editorIndent";
+import {
+  getFenceLanguageContext,
+  filterLanguages,
+  isKnownLanguage,
+} from "@/lib/fenceLanguage";
+import { measureLineTops } from "@/lib/textareaLineMetrics";
+import { cn } from "@/lib/utils";
 
 interface PostEditorProps {
   mode: "create" | "edit";
   articleId?: number;
 }
+
+/** 코드 펜스 언어 자동완성 드롭다운의 상태 */
+interface LangSuggestState {
+  tokenStart: number;
+  token: string;
+  items: string[];
+  index: number;
+  /**
+   * 사용자가 화살표 키나 마우스로 목록을 탐색했는가.
+   * 탐색한 뒤의 Enter는 항상 하이라이트 항목을 확정한다 — "골라 놓고 Enter"가
+   * 줄바꿈으로 새면 안 된다. 탐색 없이 바로 치는 Enter만 줄바꿈 휴리스틱을 탄다.
+   */
+  navigated: boolean;
+  /** textarea 래퍼 기준 위치(px) */
+  top: number;
+  left: number;
+}
+
+/** 드롭다운 최대 높이(px) — 아래 공간이 모자라면 위로 뒤집는 판단에 쓴다 */
+const SUGGEST_MAX_HEIGHT = 200;
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = [
@@ -137,7 +164,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isReferenceOpen, setIsReferenceOpen] = useState(false);
+  const [langSuggest, setLangSuggest] = useState<LangSuggestState | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  /** Escape/확정으로 닫은 자동완성 세션의 tokenStart — 같은 자리에서 다시 열지 않는다 */
+  const suggestDismissedAtRef = useRef<number | null>(null);
+  /** 모노스페이스 글자 폭 캐시 (폰트가 같으면 재측정하지 않는다) */
+  const charWidthRef = useRef<{ font: string; width: number } | null>(null);
+  const suggestListRef = useRef<HTMLDivElement>(null);
   /**
    * 이탈 경고의 기준점. 작성 모드는 빈 값, 수정 모드는 서버에서 불러온 값.
    * 카테고리는 정렬해 비교한다 — 껐다 켜서 순서만 바뀐 것은 변경이 아니다.
@@ -246,6 +279,14 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   }, [isDirty]);
 
   const readingTime = useMemo(() => estimateReadingTime(content), [content]);
+
+  // 자동완성 하이라이트가 목록 스크롤 밖으로 나가지 않게 따라간다
+  useEffect(() => {
+    if (!langSuggest) return;
+    suggestListRef.current
+      ?.querySelector('[data-active="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [langSuggest]);
 
   const handleCategoryToggle = (categoryId: number) => {
     setSelectedCategories((prev) =>
@@ -526,6 +567,113 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
     });
   };
 
+  /** 캐럿(토큰 시작) 기준 드롭다운 좌표 계산 — 모노스페이스라 글자 폭 곱으로 정확하다 */
+  const computeSuggestPosition = (
+    textarea: HTMLTextAreaElement,
+    tokenStart: number,
+  ) => {
+    const style = window.getComputedStyle(textarea);
+    const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    if (charWidthRef.current?.font !== font) {
+      const ctx = document.createElement("canvas").getContext("2d");
+      let width = 8;
+      if (ctx) {
+        ctx.font = font;
+        width = ctx.measureText("0").width;
+      }
+      charWidthRef.current = { font, width };
+    }
+
+    const value = textarea.value;
+    const lineStart = value.lastIndexOf("\n", tokenStart - 1) + 1;
+    const lineNumber = value.slice(0, lineStart).split("\n").length;
+    const [lineTop] = measureLineTops(textarea, [lineNumber]);
+    const lineHeight = parseFloat(style.lineHeight) || 20;
+
+    const left =
+      parseFloat(style.paddingLeft) +
+      (tokenStart - lineStart) * charWidthRef.current.width;
+    // 기본은 줄 아래, 아래 공간이 모자라면 줄 위로 뒤집는다
+    let top = lineTop - textarea.scrollTop + lineHeight;
+    if (top + SUGGEST_MAX_HEIGHT > textarea.clientHeight) {
+      const above = lineTop - textarea.scrollTop - SUGGEST_MAX_HEIGHT;
+      if (above > 0) top = above;
+    }
+    return {
+      top,
+      left: Math.max(0, Math.min(left, textarea.clientWidth - 200)),
+    };
+  };
+
+  /**
+   * 자동완성 상태 갱신. typing=false(캐럿 이동)일 때는 새로 열지 않고,
+   * 이미 열려 있으면 유지하거나 닫기만 한다 (IDE 관례 — 타이핑에만 열린다).
+   */
+  const updateLangSuggest = (
+    textarea: HTMLTextAreaElement,
+    typing: boolean,
+  ) => {
+    const ctx = getFenceLanguageContext(
+      textarea.value,
+      textarea.selectionStart,
+      textarea.selectionEnd,
+    );
+    if (!ctx) {
+      suggestDismissedAtRef.current = null;
+      setLangSuggest((s) => (s ? null : s));
+      return;
+    }
+    if (suggestDismissedAtRef.current === ctx.tokenStart) {
+      setLangSuggest((s) => (s ? null : s));
+      return;
+    }
+    setLangSuggest((s) => {
+      if (!typing && !s) return s;
+      // 화살표 키업처럼 내용이 그대로면 재계산하지 않는다 (하이라이트 인덱스 보존)
+      if (s && s.tokenStart === ctx.tokenStart && s.token === ctx.token) {
+        return s;
+      }
+      const items = filterLanguages(ctx.token);
+      if (items.length === 0) return null;
+      const pos = computeSuggestPosition(textarea, ctx.tokenStart);
+      // 토큰이 바뀌면 새 세션 — 탐색 여부도 처음부터 다시 센다
+      return { ...ctx, items, index: 0, navigated: false, ...pos };
+    });
+  };
+
+  /** 선택한 언어로 토큰을 교체한다 (execCommand → undo 보존, handlePaste와 동일) */
+  const acceptLangSuggest = (lang: string) => {
+    const textarea = textareaRef.current;
+    const st = langSuggest;
+    if (!textarea || !st) return;
+    // 삽입이 일으키는 onChange가 같은 자리에서 다시 열지 않도록 먼저 세션을 닫는다
+    suggestDismissedAtRef.current = st.tokenStart;
+    setLangSuggest(null);
+
+    textarea.focus();
+    const tokenEnd = st.tokenStart + st.token.length;
+    textarea.setSelectionRange(st.tokenStart, tokenEnd);
+    if (document.execCommand("insertText", false, lang)) {
+      caretRef.current = textarea.selectionStart;
+      return;
+    }
+    setContent(
+      (prev) => prev.slice(0, st.tokenStart) + lang + prev.slice(tokenEnd),
+    );
+    caretRef.current = st.tokenStart + lang.length;
+    requestAnimationFrame(() => {
+      textarea.setSelectionRange(caretRef.current!, caretRef.current!);
+    });
+  };
+
+  /** textarea에서 캐럿이 움직일 때마다: 캐럿 기록 + 자동완성 유지/닫기 판단 */
+  const handleEditorCaretMove = (
+    e: React.SyntheticEvent<HTMLTextAreaElement>,
+  ) => {
+    rememberCaret();
+    updateLangSuggest(e.currentTarget, false);
+  };
+
   /**
    * 계산된 들여쓰기 편집을 undo 보존 방식으로 적용한다 (handlePaste와 동일한 전략).
    * 교체 구간을 선택으로 잡고 execCommand로 갈아끼우면 input 이벤트가 동기로 돌아
@@ -561,8 +709,53 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   /**
    * 코드 펜스 안에서만 Tab을 2칸 들여쓰기(Shift+Tab은 내어쓰기)로 바꾼다.
    * 펜스 밖에서는 아무것도 가로채지 않아 기본 포커스 이동이 그대로 산다.
+   * 언어 자동완성이 떠 있는 동안에는 그쪽 내비게이션이 먼저다.
    */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (langSuggest && !e.nativeEvent.isComposing) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const delta = e.key === "ArrowDown" ? 1 : -1;
+        setLangSuggest(
+          (s) =>
+            s && {
+              ...s,
+              index: (s.index + delta + s.items.length) % s.items.length,
+              navigated: true,
+            },
+        );
+        return;
+      }
+      if (e.key === "Tab" && !e.shiftKey) {
+        e.preventDefault();
+        acceptLangSuggest(langSuggest.items[langSuggest.index]);
+        return;
+      }
+      if (e.key === "Enter") {
+        // 목록을 탐색해 골라 둔 상태면 Enter는 항상 그 항목을 확정한다.
+        // 탐색이 없었다면: 빈 토큰(``` 직후 바로 줄바꿈)과 이미 유효한 언어
+        // (```js 후 줄바꿈)는 그대로 통과시키고, 부분 입력만 확정한다 —
+        // Enter를 다 가로채면 가장 흔한 타이핑 흐름이 망가진다.
+        const shouldAccept =
+          langSuggest.navigated ||
+          (langSuggest.token !== "" && !isKnownLanguage(langSuggest.token));
+        if (shouldAccept) {
+          e.preventDefault();
+          acceptLangSuggest(langSuggest.items[langSuggest.index]);
+          return;
+        }
+        suggestDismissedAtRef.current = null;
+        setLangSuggest(null);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        suggestDismissedAtRef.current = langSuggest.tokenStart;
+        setLangSuggest(null);
+        return;
+      }
+    }
+
     if (e.key !== "Tab") return; // Tab 외엔 절대 개입하지 않는다
     if (e.nativeEvent.isComposing) return; // 한글 IME 조합 중엔 기본 동작(조합 확정)
     if (e.altKey || e.ctrlKey || e.metaKey) return; // 수식키 조합은 브라우저 몫
@@ -796,26 +989,69 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   </button>
                 </div>
               </div>
-              <textarea
-                id="content"
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  caretRef.current = e.target.selectionStart;
-                }}
-                onSelect={rememberCaret}
-                onKeyDown={handleKeyDown}
-                onKeyUp={rememberCaret}
-                onClick={rememberCaret}
-                onBlur={rememberCaret}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onPaste={handlePaste}
-                rows={25}
-                className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none [scrollbar-gutter:stable]`}
-                placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
-              />
+              <div className="relative">
+                <textarea
+                  id="content"
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    caretRef.current = e.target.selectionStart;
+                    updateLangSuggest(e.target, true);
+                  }}
+                  onSelect={handleEditorCaretMove}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleEditorCaretMove}
+                  onClick={handleEditorCaretMove}
+                  onBlur={() => {
+                    rememberCaret();
+                    setLangSuggest(null);
+                  }}
+                  onScroll={() => setLangSuggest(null)}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onPaste={handlePaste}
+                  rows={25}
+                  className={`${inputBase} h-[400px] lg:h-[600px] font-mono text-sm resize-none [scrollbar-gutter:stable]`}
+                  placeholder="내용을 입력하세요. 이미지는 위 버튼, 드래그, 붙여넣기로 넣을 수 있습니다."
+                />
+                {/* 코드 펜스 언어 자동완성 — ``` 뒤 타이핑에만 뜬다 */}
+                {langSuggest && (
+                  <div
+                    ref={suggestListRef}
+                    role="listbox"
+                    aria-label="코드 블록 언어 자동완성"
+                    className="absolute z-10 w-48 max-h-48 overflow-y-auto bg-white border border-line rounded-md shadow-lg py-1"
+                    style={{ top: langSuggest.top, left: langSuggest.left }}
+                  >
+                    {langSuggest.items.map((lang, i) => (
+                      <button
+                        key={lang}
+                        type="button"
+                        role="option"
+                        aria-selected={i === langSuggest.index}
+                        data-active={i === langSuggest.index ? "true" : undefined}
+                        // mousedown 기본 동작을 막아 textarea 포커스를 유지한 채 클릭을 받는다
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => acceptLangSuggest(lang)}
+                        onMouseEnter={() =>
+                          setLangSuggest(
+                            (s) => s && { ...s, index: i, navigated: true },
+                          )
+                        }
+                        className={cn(
+                          "block w-full text-left px-3 py-1 font-mono text-xs transition-colors",
+                          i === langSuggest.index
+                            ? "bg-accent-soft text-accent-deep"
+                            : "text-body",
+                        )}
+                      >
+                        {lang}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               {content && (
                 <p className="mt-1.5 text-right text-xs text-faint">
                   {content.length.toLocaleString()}자 · 약 {readingTime}분
