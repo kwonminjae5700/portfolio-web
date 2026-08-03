@@ -8,10 +8,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Category, Article } from "@/types/api";
 import PostContent from "@/components/post/PostContent";
 import MarkdownHelpModal from "@/components/post/MarkdownHelpModal";
-import { IconPhoto, IconMarkdown } from "@tabler/icons-react";
+import PostReferencePicker from "@/components/post/PostReferencePicker";
+import { IconPhoto, IconLink, IconMarkdown } from "@tabler/icons-react";
 import { LoadingSpinner } from "@/components/ui";
 import { inputBase, btnToolbar } from "@/components/ui/buttonStyles";
-import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
+import {
+  EDITOR_CONTAINER,
+  EDITOR_PANE,
+  READING_COLUMN,
+  ROUTES,
+} from "@/lib/constants";
 import { revalidateArticleCache } from "@/lib/actions/articles";
 import { useScrollSync } from "@/hooks";
 import {
@@ -129,6 +135,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
   const [showCategoryInput, setShowCategoryInput] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isReferenceOpen, setIsReferenceOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   /**
    * 마지막으로 알고 있는 캐럿 위치. null이면 문서 끝에 붙인다.
@@ -307,22 +314,13 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
    * setContent를 함수형으로 쓰는 게 핵심 — 업로드가 여러 개 동시에 끝나거나
    * 업로드 중 사용자가 타이핑해도 스냅샷을 덮어쓰지 않는다.
    */
-  const insertAtCaret = (snippet: string) => {
-    // 앵커는 업데이터 밖에서 캡처한다 — StrictMode가 업데이터를 두 번 돌려도
-    // (dev에서 실제로 돈다) 같은 위치에 꽂혀 결과가 밀리지 않는다.
-    const anchor = caretRef.current;
-    setContent((prev) => {
-      const { next, caret } = insertAsBlock(prev, anchor ?? prev.length, snippet);
-      // 캐럿을 전진시켜야 다음 삽입이 이 뒤로 이어진다.
-      caretRef.current = caret;
-      return next;
-    });
-
+  const refocusTextareaAtCaret = () => {
     requestAnimationFrame(() => {
       const textarea = textareaRef.current;
       const caret = caretRef.current;
       if (!textarea || caret === null) return;
       // 제목 같은 다른 입력창에 타이핑 중이면 포커스를 뺏지 않는다.
+      // (모달이 닫히며 트리거 버튼에 돌아간 포커스는 BUTTON이라 막지 않는다)
       const active = document.activeElement;
       if (
         active !== textarea &&
@@ -333,6 +331,56 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
       textarea.focus();
       textarea.setSelectionRange(caret, caret);
     });
+  };
+
+  const insertAtCaret = (snippet: string) => {
+    // 앵커는 업데이터 밖에서 캡처한다 — StrictMode가 업데이터를 두 번 돌려도
+    // (dev에서 실제로 돈다) 같은 위치에 꽂혀 결과가 밀리지 않는다.
+    const anchor = caretRef.current;
+    setContent((prev) => {
+      const { next, caret } = insertAsBlock(prev, anchor ?? prev.length, snippet);
+      // 캐럿을 전진시켜야 다음 삽입이 이 뒤로 이어진다.
+      caretRef.current = caret;
+      return next;
+    });
+    refocusTextareaAtCaret();
+  };
+
+  /**
+   * 캐럿 위치에 인라인 스니펫을 끼워 넣는다.
+   * insertAsBlock과 달리 빈 줄로 감싸지 않는다 — 링크는 문장 안에 흐르는 요소다.
+   * 다만 양옆이 글자에 붙으면 공백 하나를 끼워 링크 문법이 깨지지 않게 한다.
+   * applyIndentEdit처럼 execCommand로 삽입해 네이티브 undo도 보존한다.
+   */
+  const insertInlineAtCaret = (snippet: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const value = textarea.value;
+    const at = Math.max(
+      0,
+      Math.min(caretRef.current ?? value.length, value.length),
+    );
+    const lead = at > 0 && !/\s/.test(value[at - 1]) ? " " : "";
+    const tail = at < value.length && !/\s/.test(value[at]) ? " " : "";
+    const inserted = `${lead}${snippet}${tail}`;
+
+    textarea.focus();
+    textarea.setSelectionRange(at, at);
+    if (!document.execCommand("insertText", false, inserted)) {
+      // execCommand 미지원 폴백 — 업데이터가 caretRef를 읽지 않아 StrictMode에 안전
+      setContent((prev) => prev.slice(0, at) + inserted + prev.slice(at));
+    }
+    caretRef.current = at + inserted.length;
+    refocusTextareaAtCaret();
+  };
+
+  const handleReferenceSelect = (selected: Article) => {
+    // 삽입은 동기 DOM 작업이라 모달이 아직 떠 있는 동안 실행되고, 이어서
+    // 모달 cleanup이 트리거 버튼으로 포커스를 되돌린 뒤 rAF가 textarea로 옮긴다.
+    setIsReferenceOpen(false);
+    insertInlineAtCaret(
+      `[${escapeAltText(selected.title)}](${ROUTES.POST(selected.id)})`,
+    );
   };
 
   /**
@@ -684,6 +732,14 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   />
                   <button
                     type="button"
+                    onMouseDown={rememberCaret}
+                    onClick={() => setIsReferenceOpen(true)}
+                    className={btnToolbar}
+                  >
+                    <IconLink size={16} /> 글 참조
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setIsHelpOpen(true)}
                     className={btnToolbar}
                   >
@@ -765,6 +821,12 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
         <MarkdownHelpModal
           open={isHelpOpen}
           onClose={() => setIsHelpOpen(false)}
+        />
+        <PostReferencePicker
+          open={isReferenceOpen}
+          onClose={() => setIsReferenceOpen(false)}
+          onSelect={handleReferenceSelect}
+          excludeId={isEditMode ? articleId : undefined}
         />
       </div>
     </main>
