@@ -65,6 +65,7 @@ const POPULAR = [
   "dart",
   "docker",
   "markdown",
+  "mermaid",
   "diff",
   "http",
 ];

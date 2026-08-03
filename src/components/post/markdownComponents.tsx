@@ -6,6 +6,7 @@ import { darkroom } from "./codeTheme";
 import { IconCopy, IconCheck } from "@tabler/icons-react";
 import { SOURCE_LINE_ATTR } from "@/lib/rehypeSourceLine";
 import { SITE_URL } from "@/lib/constants";
+import MermaidBlock from "./MermaidBlock";
 
 // 코드 블록 컴포넌트
 function CodeBlock({
@@ -186,6 +187,17 @@ export const markdownComponents = {
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : "text";
     const isCodeBlock = className?.includes("language-");
+
+    // mermaid 펜스는 코드가 아니라 다이어그램으로 렌더링한다
+    // (빈 펜스는 children이 undefined라 ?? ""로 방어 — "undefined"가 소스가 되면 안 된다)
+    if (isCodeBlock && language === "mermaid") {
+      return (
+        <MermaidBlock
+          source={String(children ?? "").replace(/\n$/, "")}
+          anchor={anchorProps(props)}
+        />
+      );
+    }
 
     if (isCodeBlock) {
       return (

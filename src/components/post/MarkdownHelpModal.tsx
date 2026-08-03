@@ -25,7 +25,8 @@ interface HelpSection {
  * 실제 렌더러가 지원하는 것만 싣는다 — 정본은 PostContent 파이프라인:
  * remark-gfm(표·취소선·체크리스트·오토링크·각주) + rehype-raw(HTML) +
  * rehype-slug(제목 앵커) + markdownSource.ts의 커스텀 KaTeX 전처리 +
- * markdownComponents.tsx의 코드 블록(언어 라벨·줄 번호·복사 버튼).
+ * markdownComponents.tsx의 코드 블록(언어 라벨·줄 번호·복사 버튼) +
+ * MermaidBlock(```mermaid 펜스의 다이어그램 렌더링).
  * 렌더러 플러그인을 바꾸면 여기도 같이 고칠 것.
  */
 const HELP_SECTIONS: HelpSection[] = [
@@ -147,6 +148,16 @@ const HELP_SECTIONS: HelpSection[] = [
       },
     ],
     note: "문장에 $ 기호가 두 번 나오면 수식으로 해석되니 주의하세요.",
+  },
+  {
+    heading: "다이어그램 (Mermaid)",
+    rows: [
+      {
+        syntax: "```mermaid\nflowchart LR\n  A[시작] --> B{판단}\n  B -->|예| C[완료]\n```",
+        description: "코드 펜스 언어를 mermaid로 쓰면 다이어그램으로 렌더링됩니다",
+      },
+    ],
+    note: "flowchart, sequenceDiagram, classDiagram, stateDiagram-v2, erDiagram, gantt, pie 등 Mermaid 문법을 지원합니다. 문법 오류가 있으면 미리보기에 오류 안내가 표시됩니다.",
   },
   {
     heading: "HTML",
