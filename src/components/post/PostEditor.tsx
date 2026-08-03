@@ -13,6 +13,12 @@ import { inputBase } from "@/components/ui/buttonStyles";
 import { EDITOR_CONTAINER, EDITOR_PANE, READING_COLUMN } from "@/lib/constants";
 import { revalidateArticleCache } from "@/lib/actions/articles";
 import { useScrollSync } from "@/hooks";
+import {
+  isSelectionInsideCodeFence,
+  computeIndentEdit,
+  computeOutdentEdit,
+  type IndentEdit,
+} from "@/lib/editorIndent";
 
 interface PostEditorProps {
   mode: "create" | "edit";
@@ -438,6 +444,64 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
     });
   };
 
+  /**
+   * 계산된 들여쓰기 편집을 undo 보존 방식으로 적용한다 (handlePaste와 동일한 전략).
+   * 교체 구간을 선택으로 잡고 execCommand로 갈아끼우면 input 이벤트가 동기로 돌아
+   * onChange가 content를 맞추고, 브라우저 undo 스택에는 한 스텝으로 남는다.
+   */
+  const applyIndentEdit = (textarea: HTMLTextAreaElement, edit: IndentEdit) => {
+    textarea.setSelectionRange(edit.replaceStart, edit.replaceEnd);
+    // insertText는 빈 문자열을 무시하는 브라우저가 있어, 그때만 delete를 쓴다
+    const ok =
+      edit.replacement === ""
+        ? document.execCommand("delete", false)
+        : document.execCommand("insertText", false, edit.replacement);
+    if (ok) {
+      // insertText는 캐럿을 삽입 텍스트 끝에 두므로 의도한 선택으로 되돌린다.
+      // 선택 변경은 문서 변형이 아니라 undo 스택을 건드리지 않는다.
+      textarea.setSelectionRange(edit.nextSelStart, edit.nextSelEnd);
+      caretRef.current = edit.nextSelStart;
+      return;
+    }
+    // execCommand 미지원 폴백 — 이 경로만 네이티브 undo를 잃는다 (handlePaste와 동일)
+    setContent(
+      (prev) =>
+        prev.slice(0, edit.replaceStart) +
+        edit.replacement +
+        prev.slice(edit.replaceEnd),
+    );
+    caretRef.current = edit.nextSelStart;
+    requestAnimationFrame(() => {
+      textarea.setSelectionRange(edit.nextSelStart, edit.nextSelEnd);
+    });
+  };
+
+  /**
+   * 코드 펜스 안에서만 Tab을 2칸 들여쓰기(Shift+Tab은 내어쓰기)로 바꾼다.
+   * 펜스 밖에서는 아무것도 가로채지 않아 기본 포커스 이동이 그대로 산다.
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Tab") return; // Tab 외엔 절대 개입하지 않는다
+    if (e.nativeEvent.isComposing) return; // 한글 IME 조합 중엔 기본 동작(조합 확정)
+    if (e.altKey || e.ctrlKey || e.metaKey) return; // 수식키 조합은 브라우저 몫
+
+    const textarea = e.currentTarget;
+    const { selectionStart, selectionEnd, value } = textarea;
+    if (!isSelectionInsideCodeFence(value, selectionStart, selectionEnd)) {
+      return;
+    }
+
+    // 펜스 안에서는 Tab/Shift+Tab 둘 다 포커스를 옮기지 않는다
+    e.preventDefault();
+
+    const edit = e.shiftKey
+      ? computeOutdentEdit(value, selectionStart, selectionEnd)
+      : computeIndentEdit(value, selectionStart, selectionEnd);
+    if (!edit) return; // 아웃덴트할 공백이 없음 — 아무것도 하지 않는다
+
+    applyIndentEdit(textarea, edit);
+  };
+
   if (authLoading || isLoadingArticle) {
     return (
       <main className="min-h-[calc(100dvh-4.5rem)] flex items-center justify-center">
@@ -628,6 +692,7 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
                   caretRef.current = e.target.selectionStart;
                 }}
                 onSelect={rememberCaret}
+                onKeyDown={handleKeyDown}
                 onKeyUp={rememberCaret}
                 onClick={rememberCaret}
                 onBlur={rememberCaret}
