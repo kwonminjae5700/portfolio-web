@@ -41,8 +41,13 @@ export const CONTAINER = "max-w-6xl mx-auto px-5 sm:px-8 lg:px-10";
  * 글 본문이 실제로 읽히는 컬럼 폭 (46rem = 736px).
  * 상세 페이지 <article>, 로딩 스켈레톤, 에디터 미리보기가 모두 이걸 쓴다.
  * 셋이 어긋나면 미리보기에서 본 줄바꿈이 발행 후 달라진다.
+ *
+ * mx-auto를 쓰지 않는다 — 가운데 정렬하면 헤더 로고/네비의 왼쪽 선(CONTAINER의
+ * 패딩 끝)보다 본문이 안쪽으로 밀린다. xl에서는 20px(목차 그리드 컬럼 776 - 736의
+ * 절반), 목차가 빠지는 xl 미만에서는 최대 168px까지 어긋난다.
+ * 홈의 본문 컬럼(flex-1)도 왼쪽에 붙어 있어서, 왼쪽 선을 사이트 전체에서 하나로 맞춘다.
  */
-export const READING_COLUMN = "max-w-[46rem] mx-auto min-w-0 w-full";
+export const READING_COLUMN = "max-w-[46rem] min-w-0 w-full";
 
 /**
  * 에디터 한 판(작성창 / 미리보기)의 박스 폭.
