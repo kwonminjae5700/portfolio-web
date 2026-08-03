@@ -306,12 +306,11 @@ export default function PostEditor({ mode, articleId }: PostEditorProps) {
    * 업로드 중 사용자가 타이핑해도 스냅샷을 덮어쓰지 않는다.
    */
   const insertAtCaret = (snippet: string) => {
+    // 앵커는 업데이터 밖에서 캡처한다 — StrictMode가 업데이터를 두 번 돌려도
+    // (dev에서 실제로 돈다) 같은 위치에 꽂혀 결과가 밀리지 않는다.
+    const anchor = caretRef.current;
     setContent((prev) => {
-      const { next, caret } = insertAsBlock(
-        prev,
-        caretRef.current ?? prev.length,
-        snippet,
-      );
+      const { next, caret } = insertAsBlock(prev, anchor ?? prev.length, snippet);
       // 캐럿을 전진시켜야 다음 삽입이 이 뒤로 이어진다.
       caretRef.current = caret;
       return next;
